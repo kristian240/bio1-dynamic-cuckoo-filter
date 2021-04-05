@@ -1,0 +1,3 @@
+[submodule "cuckoofilter"]
+	path = efficient-cuckoofilter
+	url = https://github.com/efficient/cuckoofilter.git

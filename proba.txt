@@ -1,1 +1,9 @@
-probaa
+1.RADI SAMO ZA STRINGOVE
+3. size_t GenerateFingerprint(item_type& item) { return hasher(item) & mask; } zašto vraćamo size_t .. size_t pise da je unsigned long long 
+size_t treba govorit koliko nešto ima bitova odnosno koje je velicine.. ovo ostalo bi trebalo biti unsigned int ili nesto drugo ( govorim za fingerprint,index1 i index2)
+recimo kod DeleteItemFromBucket koristimo uint32_t
+4. table-> za bilo sta ne prepoznaje
+
+//TODO
+Konstruktori
+FPP

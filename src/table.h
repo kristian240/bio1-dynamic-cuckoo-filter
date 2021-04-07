@@ -5,6 +5,7 @@
 using namespace std;
 
 namespace cuckoofilter {
+  
 template <size_t bits_per_item>
 class Table {
   static const size_t k_items_per_bucket = 4;
@@ -24,7 +25,7 @@ class Table {
     memset(buckets, 0, k_bytes_per_bucket * bucket_count);
   }
 
-  ~SingleTable() {}
+  virtual ~SingleTable() = default;
 
   size_t BucketCount() const { return bucket_count; }
 

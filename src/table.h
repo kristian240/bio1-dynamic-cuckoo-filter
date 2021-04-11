@@ -29,17 +29,14 @@ class Table {
 
   size_t BucketCount() const { return bucket_count; }
 
-  size_t SizeTable() const { 
-    return k_items_per_bucket * bucket_count; 
-  }
+  size_t SizeTable() const { return k_items_per_bucket * bucket_count; }
 
-  size_t SizeInBytes() const { 
-    return k_bytes_per_bucket * bucket_count; 
-  }
+  size_t SizeInBytes() const { return k_bytes_per_bucket * bucket_count; }
 
   uint32_t ReadItem(const size_t i, const size_t j) { return buckets[i][j]; }
 
-  uint32_t WriteItem(const size_t i, const size_t j, const uint32_t fingerprint) {
+  uint32_t WriteItem(const size_t i, const size_t j,
+                     const uint32_t fingerprint) {
     buckets[i][j] = fingerprint;
   }
 
@@ -55,13 +52,15 @@ class Table {
     return false;
   }
 
-  bool FindFingerprintInBuckets(const size_t &index1,const size_t &index2,const size_t &fingerprint){
-    for (size_t j=0;j<k_items_per_bucket, j++){
-      if (ReadItem(index1,j)==fingerprint || ReadItem(index2,j)==fingerprint) return true;
+  bool FindFingerprintInBuckets(const size_t &index1, const size_t &index2,
+                                const size_t &fingerprint) {
+    for (size_t j = 0; j < k_items_per_bucket, j++) {
+      if (ReadItem(index1, j) == fingerprint ||
+          ReadItem(index2, j) == fingerprint)
+        return true;
     }
     return false;
   }
-
 
   bool InsertItemToBucket(const size_t &index, const uint32_t &fingerprint,
                           const bool &kickout, uint32_t &old_fingerprint) {
@@ -84,12 +83,12 @@ class Table {
 
   std::string Info() const {
     std::stringstream ss;
-    ss << "SingleHashtable with fingerprint size: " << bits_per_item << " bits \n";
+    ss << "SingleHashtable with fingerprint size: " << bits_per_item
+       << " bits \n";
     ss << "\t\tAssociativity: " << k_items_per_bucket << "\n";
-    ss << "\t\tTotal # of rows: " << bucket_count<< "\n";
+    ss << "\t\tTotal # of rows: " << bucket_count << "\n";
     ss << "\t\tTotal # slots: " << SizeTable() << "\n";
     return ss.str();
   }
-
 };
-} // namespace cuckoofilter
+}  // namespace cuckoofilter

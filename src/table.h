@@ -1,5 +1,10 @@
 #include <math.h>
 #include <stdio.h>
+
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
 // #include <string.h>
 
 using namespace std;
@@ -22,7 +27,7 @@ class Table {
  public:
   Table(const size_t bucket_count) : bucket_count(bucket_count) {
     buckets = make_shared<Bucket[]>(k_bytes_per_bucket * bucket_count);
-    memset(buckets, 0, k_bytes_per_bucket * bucket_count);
+    memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }
 
   virtual ~Table() = default;
@@ -42,13 +47,14 @@ class Table {
     buckets[i][j] = fingerprint;
   }
 
+  /* On mi samo treba za Compact()
   vector<uint32_t> getBucket(const uint32_t i) {
     vector<uint32_t> bucket;
     for (uint32_t j = 0; j < k_items_per_bucket; j++) {
       if (buckets[i][j] != 0) bucket.push_back(buckets[i][j]);
     }
     return bucket;
-  }
+  } */
 
   bool DeleteItemFromBucket(const uint32_t &index,
                             const uint32_t &fingerprint) {
@@ -65,7 +71,7 @@ class Table {
 
   bool FindFingerprintInBuckets(const uint32_t &index1, const uint32_t &index2,
                                 const uint32_t &fingerprint) {
-    for (uint32_t j = 0; j < k_items_per_bucket, j++) {
+    for (uint32_t j = 0; j < k_items_per_bucket; j++) {
       if (ReadItem(index1, j) == fingerprint ||
           ReadItem(index2, j) == fingerprint)
         return true;

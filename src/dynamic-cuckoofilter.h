@@ -4,15 +4,16 @@
 #include <utility>
 #include <vector>
 
-#include "hash.h"
-#include "table.h"
+#include "cuckoofilter.h"
+//#include "hash.h"
+//#include "table.h"
 
 namespace cuckoofilterbio1 {
 
 template <typename item_type = string, size_t bits_per_item = 7,
           template <size_t> class table_type = Table, typename hash_used = Hash>
 class DynamicCuckooFilter {
-  using CuckooFilter<item_type, bits_per_item, table_type, hash_used> =
+  using CuckooFilter<item_type, bits_per_item, table_type, hash_used>
       TypedCuckooFilter;
 
   class DynamicCuckooFilterNode {
@@ -23,7 +24,7 @@ class DynamicCuckooFilter {
     DynamicCuckooFilterNode(std::shared_ptr<class TypedCuckooFilter> cf,
                             std::shared_ptr<DynamicCuckooFilterNode> next)
         : cf(cf), next(next) {}
-  }
+  };
 
   // U konstruktoru je namijesten da bude 0.9
   const double capacity;

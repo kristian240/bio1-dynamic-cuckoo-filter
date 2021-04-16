@@ -43,12 +43,14 @@ class DynamicCuckooFilter {
   std::shared_ptr<DynamicCuckooFilterNode> head_cf;
   std::shared_ptr<DynamicCuckooFilterNode> curr_cf;
 
+  void AddToQueue(TypedCuckooFilter newCF) { dynamic_cuckoo_queue.push(newCF); }
+
  public:
   DynamicCuckooFilter(const size_t max_items)
       : head_cf(std::make_shared<DynamicCuckooFilterNode>(
             new TypedCuckooFilter(max_items), nullptr)),
         capacity(0.9) {
-    dynamic_cuckoo_queue.push(head_cf->cf.get());
+    AddToQueue(head_cf->cf.get());
     curr_cf = head_cf;
   }
 
@@ -57,6 +59,7 @@ class DynamicCuckooFilter {
       if (curr_cf->next == nullptr) {
         curr_cf->next = std::make_shared<DynamicCuckooFilterNode>(
             new TypedCuckooFilter(max_items), nullptr);
+        AddToQueue(curr_cf->next->cf.get());
       }
 
       curr_cf = curr_cf->next;
@@ -73,6 +76,7 @@ class DynamicCuckooFilter {
       if (tmp_curr_cf->next == nullptr) {
         tmp_curr_cf->next = std::make_shared<DynamicCuckooFilterNode>(
             new TypedCuckooFilter(max_items), nullptr);
+        AddToQueue(tmp_curr_cf->next->cf.get());
       }
 
       std::shared_ptr<DynamicCuckooFilterNode> next_cf = tmp_curr_cf->next;
@@ -113,5 +117,38 @@ class DynamicCuckooFilter {
 
     return Status.NotFound;
   }
+
+  Status Delete(const item_type& item) {
+    std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf = head_cf;
+
+    while (tmp_curr_cf != nullptr) {
+      if (tmp_curr_cf->cf.Delete(item) == Status.Ok) {
+        return Status.Ok;
+      }
+
+      tmp_curr_cf = tmp_curr_cf->next;
+    }
+
+    return Status.NotFound;
+  }
 };
 }  // namespace cuckoofilterbio1
+
+/*
+Algorithm 4 Compact ( )
+1: for k = 1 to s do
+2: if CFk is not full then
+3: add CFk to CFQ;
+4: sort CFQ by ascending order;
+5: for i = 2 to m do // m is the number of CFs in CFQ
+6: curCF ← CF Q.element[i − 1];
+7: for j = 1 to l do
+8: if bucket curCF.B(j) is not empty then
+9: for k = m to i do
+10: CF Q.element[k].B(j) ← fingerprints of
+curCF.B(j);
+11: if curCF is empty then
+12: remove curCF from DCF;
+13: break;
+14: return true.
+*/

@@ -7,3 +7,8 @@ recimo kod DeleteItemFromBucket koristimo uint32_t
 //TODO
 Konstruktori
 FPP
+
+
+
+Table .. konstruktor je SingleTable
+konstruktor kod CuckooFilter

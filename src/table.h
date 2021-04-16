@@ -20,12 +20,12 @@ class Table {
   size_t bucket_count;
 
  public:
-  SingleTable(const size_t bucket_count) : bucket_count(bucket_count) {
+  Table(const size_t bucket_count) : bucket_count(bucket_count) {
     buckets = make_shared<Bucket[]>(k_bytes_per_bucket * bucket_count);
     memset(buckets, 0, k_bytes_per_bucket * bucket_count);
   }
 
-  virtual ~SingleTable() = default;
+  virtual ~Table() = default;
 
   size_t BucketCount() const { return bucket_count; }
 
@@ -33,15 +33,26 @@ class Table {
 
   size_t SizeInBytes() const { return k_bytes_per_bucket * bucket_count; }
 
-  uint32_t ReadItem(const size_t i, const size_t j) { return buckets[i][j]; }
+  uint32_t ReadItem(const uint32_t i, const uint32_t j) {
+    return buckets[i][j];
+  }
 
-  uint32_t WriteItem(const size_t i, const size_t j,
+  uint32_t WriteItem(const uint32_t i, const uint32_t j,
                      const uint32_t fingerprint) {
     buckets[i][j] = fingerprint;
   }
 
-  bool DeleteItemFromBucket(const size_t &index, const uint32_t &fingerprint) {
-    for (size_t j = 0; j < k_items_per_bucket; j++) {
+  vector<uint32_t> getBucket(const uint32_t i) {
+    vector<uint32_t> bucket;
+    for (uint32_t j = 0; j < k_items_per_bucket; j++) {
+      if (buckets[i][j] != 0) bucket.push_back(buckets[i][j]);
+    }
+    return bucket;
+  }
+
+  bool DeleteItemFromBucket(const uint32_t &index,
+                            const uint32_t &fingerprint) {
+    for (uint32_t j = 0; j < k_items_per_bucket; j++) {
       if (ReadItem(index, j) == fingerprint) {
         WriteItem(index, j, 0);
 
@@ -52,9 +63,9 @@ class Table {
     return false;
   }
 
-  bool FindFingerprintInBuckets(const size_t &index1, const size_t &index2,
-                                const size_t &fingerprint) {
-    for (size_t j = 0; j < k_items_per_bucket, j++) {
+  bool FindFingerprintInBuckets(const uint32_t &index1, const uint32_t &index2,
+                                const uint32_t &fingerprint) {
+    for (uint32_t j = 0; j < k_items_per_bucket, j++) {
       if (ReadItem(index1, j) == fingerprint ||
           ReadItem(index2, j) == fingerprint)
         return true;
@@ -62,9 +73,9 @@ class Table {
     return false;
   }
 
-  bool InsertItemToBucket(const size_t &index, const uint32_t &fingerprint,
+  bool InsertItemToBucket(const uint32_t &index, const uint32_t &fingerprint,
                           const bool &kickout, uint32_t &old_fingerprint) {
-    for (size_t j = 0; j < k_items_per_bucket; j++) {
+    for (uint32_t j = 0; j < k_items_per_bucket; j++) {
       if (ReadItem(index, j) == 0) {
         WriteItem(index, j, fingerprint);
 
@@ -73,7 +84,7 @@ class Table {
     }
 
     if (kickout) {
-      size_t r = rand() % k_items_per_bucket;
+      uint32_t r = rand() % k_items_per_bucket;
       old_fingerprint = ReadItem(index, r);
       WriteItem(index, r, fingerprint);
     }
@@ -91,4 +102,4 @@ class Table {
     return ss.str();
   }
 };
-}  // namespace cuckoofilter
+}  // namespace cuckoofilterbio1

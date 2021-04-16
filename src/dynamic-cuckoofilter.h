@@ -90,14 +90,28 @@ class DynamicCuckooFilter {
     std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf = head_cf;
 
     while (tmp_curr_cf != nullptr) {
-      if (tmp_curr_cf->cf.Conains() == Status.Ok) {
+      if (tmp_curr_cf->cf.Contains() == Status.Ok) {
         return Status.Ok;
       }
 
       tmp_curr_cf = tmp_curr_cf->next;
     }
 
-    return false;
+    return Status.NotFound;
+  }
+
+  Status Delete(const item_type& item) {
+    std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf = head_cf;
+
+    while (tmp_curr_cf != nullptr) {
+      if (tmp_curr_cf->cf.Delete() == Status.Ok) {
+        return tmp_curr_cf->cf.Delete();
+      }
+
+      tmp_curr_cf = tmp_curr_cf->next;
+    }
+
+    return Status.NotFound;
   }
 };
 }  // namespace cuckoofilterbio1

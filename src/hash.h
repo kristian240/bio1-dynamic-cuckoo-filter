@@ -4,7 +4,7 @@
 
 #define get16bits(d) (*((const uint16_t *)(d)))
 
-namespace cuckoofilter {
+namespace cuckoofilterbio1 {
 class Hash {
   static uint32_t Hash::SuperFastHash(const void *buf, size_t len) {
     const char *data = (const char *)buf;

@@ -1,33 +1,36 @@
+#include <math.h>
 
+#include <memory>
 #include <string>
 
 #include "hash.h"
 #include "table.h"
 
-namespace cuckoofilter {
+namespace cuckoofilterbio1 {
 enum Status {
   Ok = 0,
   NotFound = 1,
   NotEnoughSpace = 2,
 };
 
+class Victim {
+ public:
+  std::size_t index;
+  std::size_t fingerprint;
+  bool used;
+}
+
 const size_t max_num_kicks = 500;
 
-template <typename item_type = string, size_t bits_per_item = 7,
-          template <size_t> class table_type = Table, typename hash_used = Hash>
+template <typename item_type = string, std::size_t bits_per_item = 7,
+          template <std::size_t> class table_type = Table,
+          typename hash_used = Hash>
 class CuckooFilter {
   // Mjesto za pohranu
-  shared_ptr<table_type<bits_per_item>> table;
+  std::shared_ptr<table_type<bits_per_item>> table;
 
   // Broj spremljenih
   size_t num_items;
-
-  class Victim {
-   public:
-    size_t index;
-    size_t fingerprint;
-    bool used;
-  }
 
   // Koristi se kao rezervna pohrana
   Victim victim;
@@ -48,19 +51,19 @@ class CuckooFilter {
   }
 
  public:
-  explicit CuckooFilter(const size_t max_items)
-      : num_items(0), victim_(), hasher_() {
-    size_t assoc = 4;
+  CuckooFilter(const size_t max_items) : num_items(0), victim(), hasher() {
+    size_t k_items_per_bucket = 4;
+
     // zaokruzi na sljedecu potenciju broja 2
-    size_t num_buckets = pow(2, ceil(log(max_num_keys / assoc)) / log(2));
+    size_t num_buckets = pow(2, ceil(log2(max_items / k_items_per_bucket)));
 
     // victim se ne koristi
-    victim_.used = false;
+    victim.used = false;
 
-    table = new TableType<bits_per_item>(num_buckets);
+    table = make_shared<TableType<bits_per_item>>(num_buckets);
   }
 
-  ~CuckooFilter() { delete table; }
+  virtual ~CuckooFilter() = default;
 
   Status Add(const item_type& item) {
     if (victim.used) return NotEnoughSpace;
@@ -97,7 +100,8 @@ class CuckooFilter {
 
     // Koristim victima.. tablica je puna
     victim.used = true;
-    victim.index = current_index victim.fingerprint = current_fingerprint;
+    victim.index = current_index;
+    victim.fingerprint = current_fingerprint;
     num_items++;
 
     return Ok;
@@ -110,7 +114,7 @@ class CuckooFilter {
     size_t index2 = GetIndex2(index1, fingerprint);
 
       found = (victim.used && victim.fingerprint==fingerprint && (index1==victim.index || index2=victim.index);
-      if (found || table-> FindFingerprintInBuckets(index1,index2,fingerprint)) return Ok;
+      if (found || table->FindFingerprintInBuckets(index1,index2,fingerprint)) return Ok;
       else return NotFound;
   }
 
@@ -150,6 +154,10 @@ class CuckooFilter {
 
   double BitsPerItem() const { return 8.0 * table->SizeInBytes() / Size(); }
 
+  std::shared_ptr<Victim> GetVictim() const {
+    return std::make_shared<Victim>(victim);
+  }
+
   string Info() {
     std::stringstream ss;
     ss << "CuckooFilter Status:\n"
@@ -166,4 +174,4 @@ class CuckooFilter {
   }
 };
 
-}  // namespace cuckoofilter
+}  // namespace cuckoofilterbio1

@@ -90,7 +90,7 @@ class DynamicCuckooFilter {
     std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf = head_cf;
 
     while (tmp_curr_cf != nullptr) {
-      if (tmp_curr_cf->cf.Contains() == Status.Ok) {
+      if (tmp_curr_cf->cf.Contains(item) == Status.Ok) {
         return Status.Ok;
       }
 
@@ -104,8 +104,8 @@ class DynamicCuckooFilter {
     std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf = head_cf;
 
     while (tmp_curr_cf != nullptr) {
-      if (tmp_curr_cf->cf.Delete() == Status.Ok) {
-        return tmp_curr_cf->cf.Delete();
+      if (tmp_curr_cf->cf.Delete(item) == Status.Ok) {
+        return Status.Ok;
       }
 
       tmp_curr_cf = tmp_curr_cf->next;

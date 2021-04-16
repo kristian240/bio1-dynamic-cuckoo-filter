@@ -4,20 +4,20 @@
 
 using namespace std;
 
-namespace cuckoofilter {
+namespace cuckoofilterbio1 {
 
 template <size_t bits_per_item>
 class Table {
   static const size_t k_items_per_bucket = 4;
   static const size_t k_bytes_per_bucket =
-      ceil((bits_per_tag * k_items_per_bucket) / 8.);
-
-  shared_ptr<Bucket[]> buckets;
-  size_t bucket_count;
+      ceil((bits_per_item * k_items_per_bucket) / 8.);
 
   class Bucket {
     char bits[k_bytes_per_bucket];
   };
+
+  shared_ptr<Bucket[]> buckets;
+  size_t bucket_count;
 
  public:
   SingleTable(const size_t bucket_count) : bucket_count(bucket_count) {

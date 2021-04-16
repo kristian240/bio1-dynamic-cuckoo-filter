@@ -5,7 +5,7 @@
 #include "hash.h"
 #include "table.h"
 
-namespace cuckoofilter {
+namespace cuckoofilterbio1 {
 enum Status {
   Ok = 0,
   NotFound = 1,
@@ -25,15 +25,17 @@ class CuckooFilter {
     uint32_t index;
     uint32_t fingerprint;
     bool used;
-  }
+  };
   // U konstruktoru napravi victim.false;
   Victim victim;
 
   hash_used hasher;
-  static uint32_t mask = (1ULL << bits_per_item) - 1;
+  static const uint32_t item_mask = (1ULL << bits_per_item) - 1;
 
   // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
-  uint32_t GenerateFingerprint(item_type& item) { return hasher(item) & mask; }
+  uint32_t GenerateFingerprint(item_type& item) {
+    return hasher(item) & item_mask;
+  }
 
   uint32_t GetIndex1(item_type& item) {
     // BUCKETCOUNT MI NE PREPOZNAJE
@@ -78,7 +80,8 @@ class CuckooFilter {
     }
     // Koristim victima.. tablica je puna
     victim.used = true;
-    victim.index = current_index victim.fingerprint = current_fingerprint;
+    victim.index = current_index;
+    victim.fingerprint = current_fingerprint;
     num_items++;
 
     return Ok;
@@ -90,9 +93,12 @@ class CuckooFilter {
     uint32_t index1 = GetIndex1(item);
     uint32_t index2 = GetIndex2(index1, fingerprint);
 
-      found = (victim.used && victim.fingerprint==fingerprint && (index1==victim.index || index2=victim.index);
-      if (found || table-> FindFingerprintInBuckets(index1,index2,fingerprint)) return Ok;
-      else return NotFound;
+    found = (victim.used && victim.fingerprint == fingerprint &&
+             (index1 == victim.index || index2 = victim.index));
+    if (found || table->FindFingerprintInBuckets(index1, index2, fingerprint))
+      return Ok;
+    else
+      return NotFound;
   }
 
   Status Delete(const item_type& item) {
@@ -153,4 +159,4 @@ class CuckooFilter {
   }
 };
 
-}  // namespace cuckoofilter
+}  // namespace cuckoofilterbio1

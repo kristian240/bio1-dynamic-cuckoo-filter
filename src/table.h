@@ -47,14 +47,14 @@ class Table {
     buckets[i][j] = fingerprint;
   }
 
-  /* On mi samo treba za Compact()
-  vector<uint32_t> getBucket(const uint32_t i) {
+  vector<uint32_t> GetBucket(const uint32_t i) {
     vector<uint32_t> bucket;
-    for (uint32_t j = 0; j < k_items_per_bucket; j++) {
+
+    for (uint32_t j = 0; j < k_items_per_bucket; j++)
       if (buckets[i][j] != 0) bucket.push_back(buckets[i][j]);
-    }
+
     return bucket;
-  } */
+  }
 
   bool DeleteItemFromBucket(const uint32_t &index,
                             const uint32_t &fingerprint) {
@@ -76,6 +76,7 @@ class Table {
           ReadItem(index2, j) == fingerprint)
         return true;
     }
+
     return false;
   }
 

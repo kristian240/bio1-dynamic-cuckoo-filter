@@ -12,6 +12,13 @@ enum Status {
   NotEnoughSpace = 2,
 };
 
+class Victim {
+ public:
+  std::size_t index;
+  std::size_t fingerprint;
+  bool used;
+};
+
 const size_t max_num_kicks = 500;
 
 template <typename item_type = string, size_t bits_per_item = 7,
@@ -20,12 +27,6 @@ class CuckooFilter {
   shared_ptr<table_type<bits_per_item>> table;
   size_t num_items;
 
-  class Victim {
-   public:
-    uint32_t index;
-    uint32_t fingerprint;
-    bool used;
-  };
   // U konstruktoru napravi victim.false;
   Victim victim;
 
@@ -45,6 +46,21 @@ class CuckooFilter {
   uint32_t GetIndex2(const uint32_t& index1, const uint32_t& fingerprint) {
     return (index1 ^ hasher(fingerprint)) % (table->BucketCount());
   }
+
+ public:
+  CuckooFilter(const size_t max_items) : num_items(0), victim(), hasher() {
+    size_t k_items_per_bucket = 4;
+
+    // zaokruzi na sljedecu potenciju broja 2
+    size_t num_buckets = pow(2, ceil(log2(max_items / k_items_per_bucket)));
+
+    // victim se ne koristi
+    victim.used = false;
+
+    table = make_shared<TableType<bits_per_item>>(num_buckets);
+  }
+
+  virtual ~CuckooFilter() = default;
 
   Status Add(const item_type& item) {
     if (victim.used) return NotEnoughSpace;
@@ -139,8 +155,14 @@ class CuckooFilter {
 
   size_t GetBucketCount() const { return table->BucketCount(); }
 
-  vector<uint32_t> getBucketFromTable(const uint32_t i) {
-    return table->getBucket(i);
+  vector<uint32_t> GetBucketFromTable(const uint32_t i) {
+    return table->GetBucket(i);
+  }
+
+  Status AddToBucket(const uint32_t i, const item_type& item) {
+    if (table->InsertItemToBucket(i, item, false, nullptr)) return Status.Ok;
+
+    return Status.NotEnoughSpace;
   }
 
   string Info() {

@@ -6,7 +6,7 @@
 
 namespace cuckoofilterbio1 {
 class Hash {
-  static uint32_t Hash::SuperFastHash(const void *buf, size_t len) {
+  static uint32_t SuperFastHash(const void *buf, size_t len) {
     const char *data = (const char *)buf;
     uint32_t hash = len, tmp;
     int rem;

@@ -1,11 +1,12 @@
 #include <math.h>
 #include <stdio.h>
 
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
-// #include <string.h>
+#include <vector>
 
 using namespace std;
 
@@ -21,12 +22,13 @@ class Table {
     char bits[k_bytes_per_bucket];
   };
 
-  shared_ptr<Bucket[]> buckets;
+  shared_ptr<std::vector<Bucket>> buckets;
   size_t bucket_count;
 
  public:
   Table(const size_t bucket_count) : bucket_count(bucket_count) {
-    buckets = make_shared<Bucket[]>(k_bytes_per_bucket * bucket_count);
+    buckets =
+        make_shared<std::vector<Bucket>>(k_bytes_per_bucket * bucket_count);
     memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }
 
@@ -42,8 +44,8 @@ class Table {
     return buckets[i][j];
   }
 
-  uint32_t WriteItem(const uint32_t i, const uint32_t j,
-                     const uint32_t fingerprint) {
+  void WriteItem(const uint32_t i, const uint32_t j,
+                 const uint32_t fingerprint) {
     buckets[i][j] = fingerprint;
   }
 

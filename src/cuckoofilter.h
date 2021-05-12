@@ -57,7 +57,7 @@ class CuckooFilter {
     // victim se ne koristi
     victim.used = false;
 
-    table = make_shared<TableType<bits_per_item>>(num_buckets);
+    table = make_shared<table_type<bits_per_item>>(num_buckets);
   }
 
   virtual ~CuckooFilter() = default;
@@ -160,9 +160,9 @@ class CuckooFilter {
   }
 
   Status AddToBucket(const uint32_t i, const item_type& item) {
-    if (table->InsertItemToBucket(i, item, false, nullptr)) return Status.Ok;
+    if (table->InsertItemToBucket(i, item, false, nullptr)) return Ok;
 
-    return Status.NotEnoughSpace;
+    return NotEnoughSpace;
   }
 
   string Info() {

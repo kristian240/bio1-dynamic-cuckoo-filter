@@ -4,31 +4,42 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <new>
 #include <sstream>
-#include <string>
 #include <vector>
 
 using namespace std;
 
 namespace cuckoofilterbio1 {
-
+// VRATI BUCKET BITS DA BUDE CHAR ILI UINT8_T!!!
 template <size_t bits_per_item>
 class Table {
   static const size_t k_items_per_bucket = 4;
   static const size_t k_bytes_per_bucket =
       ceil((bits_per_item * k_items_per_bucket) / 8.);
 
+  /*template <typename T>
+  struct array_deleter {
+    void operator()(T const *p) { delete[] p; }
+  };*/
+
   class Bucket {
-    char bits[k_bytes_per_bucket];
+    // Vrati kasnije na char ili uint8_t.. isto i kod operatora[]
+    uint32_t bits[k_bytes_per_bucket];
+
+   public:
+    uint32_t operator[](const uint32_t j) { return bits[j]; }
+    void write(const uint32_t j, const uint32_t fingerprint) {
+      bits[j] = fingerprint;
+    }
   };
 
-  shared_ptr<std::vector<Bucket>> buckets;
+  unique_ptr<Bucket[]> buckets;
   size_t bucket_count;
 
  public:
   Table(const size_t bucket_count) : bucket_count(bucket_count) {
-    buckets =
-        make_shared<std::vector<Bucket>>(k_bytes_per_bucket * bucket_count);
+    buckets = make_unique<Bucket[]>(bucket_count);
     memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }
 
@@ -46,7 +57,7 @@ class Table {
 
   void WriteItem(const uint32_t i, const uint32_t j,
                  const uint32_t fingerprint) {
-    buckets[i][j] = fingerprint;
+    buckets[i].write(j, fingerprint);
   }
 
   vector<uint32_t> GetBucket(const uint32_t i) {
@@ -105,7 +116,7 @@ class Table {
     std::stringstream ss;
     ss << "SingleHashtable with fingerprint size: " << bits_per_item
        << " bits \n";
-    ss << "\t\tAssociativity: " << k_items_per_bucket << "\n";
+    ss << "\t\tItems per bucket: " << k_items_per_bucket << "\n";
     ss << "\t\tTotal # of rows: " << bucket_count << "\n";
     ss << "\t\tTotal # slots: " << SizeTable() << "\n";
     return ss.str();

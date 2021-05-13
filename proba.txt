@@ -3,9 +3,22 @@
 size_t treba govorit koliko nešto ima bitova odnosno koje je velicine.. ovo ostalo bi trebalo biti unsigned int ili nesto drugo ( govorim za fingerprint,index1 i index2)
 recimo kod DeleteItemFromBucket koristimo uint32_t
 4. table-> za bilo sta ne prepoznaje
+------
+13.5.2021. table.h
+ReadItem vraca uint32_t, a mi u bucketsima imamo spremljene char?
+GetBucket ista stvar 
+WriteItem u njega pisemo uint32 a jel bi trebali char? 
+.. to sve ovisi jos o fingerprintu.. fingerprint bi trebao biti char  onda ako se ne varam, znaci item_mask za hash u cuckoofilter.h. ili promijeniti u klasi bucket da ne bude char nego uint32_t
+...
+oni jesu isto svoj bucket na pocetku stavili char ( znaci da fingerprint ima 8 bita) ali onda ovisno o tome koliko je zadano koliko bita ima fingerprint onda ga castaju na uint8 16 ili 32 .. a to mi nemamo
+...
+ako mi ne zelimo if elsove.. mozemo staviti odma uint32_t da bude uvijek .. ali onda nam ne treba template bits_per_item.. zato sto ce on biti uvijek 32.. mislim mozemo ga staviti na deafult 32 ja mislim i to cu za sad napraviti
+
+mislim da ce trebat napraviti if elsove..kopiraj od cucko- original
+
 
 //TODO
-Konstruktori
+VRATI BUCKET BITS DA BUDE CHAR ILI UINT8_T U TABLE.H
 FPP
 
 

@@ -20,7 +20,7 @@ class Victim {
 };
 
 const size_t max_num_kicks = 500;
-
+// Tu je bits_per_item = 7, a u table je 32 default PAZI!!!!!!!!!!!!!!!
 template <typename item_type = string, size_t bits_per_item = 7,
           template <size_t> class table_type = Table, typename hash_used = Hash>
 class CuckooFilter {

@@ -11,6 +11,8 @@ int main(int argc, const char* argv[]) {
 
   // table
   test_construct_table();
+  test_add_items_table();
+  test_get_bucket_table();
 
   // cuckoofilter
 

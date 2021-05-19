@@ -19,12 +19,12 @@ std::string generateKMer(size_t k) {
 }
 
 void test_max_item() {
-  CuckooFilter<> cf(10);
+  CuckooFilter<> cf(16);
 
   while (cf.Add(generateKMer(20)) == Ok)
     ;
 
-  assert(cf.Size() <= 10);
+  assert(cf.Size() <= 16);
 
   std::cout << "PASS test_max_item" << std::endl;
 }

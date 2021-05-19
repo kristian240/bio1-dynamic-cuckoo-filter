@@ -1,6 +1,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "hash.h"
 #include "table.h"
@@ -26,6 +27,7 @@ template <typename item_type = std::string, size_t bits_per_item = 7,
 class CuckooFilter {
   shared_ptr<table_type<bits_per_item>> table;
   size_t num_items;
+  size_t max_items;
 
   // U konstruktoru napravi victim.false;
   Victim victim;
@@ -34,8 +36,8 @@ class CuckooFilter {
   static const uint32_t item_mask = (1ULL << bits_per_item) - 1;
 
   // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
-  uint32_t GenerateFingerprint(const item_type& item) {
-    return hasher(item) & item_mask;
+  uint8_t GenerateFingerprint(const item_type& item) {
+    return hasher(item);
   }
 
   uint32_t GetIndex1(const item_type& item) {
@@ -50,11 +52,11 @@ class CuckooFilter {
   }
 
  public:
-  CuckooFilter(const size_t max_items) : num_items(0), victim(), hasher() {
+  CuckooFilter(const size_t max_items) : max_items(max_items), num_items(0), victim(), hasher() {
     size_t k_items_per_bucket = 4;
 
     // zaokruzi na sljedecu potenciju broja 2
-    size_t num_buckets = max_items < k_items_per_bucket ? 1 : pow(2, ceil(log2(max_items / k_items_per_bucket)));
+    size_t num_buckets = max_items < k_items_per_bucket ? 1 : pow(2, ceil(log2(((double) max_items) / k_items_per_bucket)));
 
     // victim se ne koristi
     victim.used = false;
@@ -65,6 +67,8 @@ class CuckooFilter {
   virtual ~CuckooFilter() = default;
 
   Status Add(const item_type& item) {
+    if(num_items == max_items) return NotEnoughSpace;
+
     if (victim.used) return NotEnoughSpace;
 
     uint32_t index = GetIndex1(item);
@@ -125,7 +129,7 @@ class CuckooFilter {
 
     if (table->DeleteItemFromBucket(index1, fingerprint)) {
       num_items--;
-      
+
       if (victim.used) {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);

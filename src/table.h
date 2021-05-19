@@ -24,11 +24,10 @@ class Table {
   };*/
 
   class Bucket {
-    // Vrati kasnije na char ili uint8_t.. isto i kod operatora[]
-    uint32_t bits[k_bytes_per_bucket];
+    uint8_t bits[k_bytes_per_bucket];
 
    public:
-    uint32_t operator[](const uint32_t j) { return bits[j]; }
+    uint8_t operator[](const uint32_t j) { return bits[j]; }
     void write(const uint32_t j, const uint32_t fingerprint) {
       bits[j] = fingerprint;
     }

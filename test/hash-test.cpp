@@ -19,3 +19,9 @@ void test_same_string() {
   assert(hasher(s1) == hasher(s2));
   std::cout << "PASS test_same_string" << std::endl;
 }
+
+int main(int argc, const char* argv[]) {
+  test_different_string();
+  test_same_string();
+  return 0;
+}

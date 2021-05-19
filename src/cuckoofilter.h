@@ -21,7 +21,7 @@ class Victim {
 
 const size_t max_num_kicks = 500;
 // Tu je bits_per_item = 7, a u table je 32 default PAZI!!!!!!!!!!!!!!!
-template <typename item_type = string, size_t bits_per_item = 7,
+template <typename item_type = std::string, size_t bits_per_item = 7,
           template <size_t> class table_type = Table, typename hash_used = Hash>
 class CuckooFilter {
   shared_ptr<table_type<bits_per_item>> table;
@@ -34,17 +34,19 @@ class CuckooFilter {
   static const uint32_t item_mask = (1ULL << bits_per_item) - 1;
 
   // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
-  uint32_t GenerateFingerprint(item_type& item) {
+  uint32_t GenerateFingerprint(const item_type& item) {
     return hasher(item) & item_mask;
   }
 
-  uint32_t GetIndex1(item_type& item) {
+  uint32_t GetIndex1(const item_type& item) {
     // BUCKETCOUNT MI NE PREPOZNAJE
     return hasher(item) % (table->BucketCount());
   }
 
   uint32_t GetIndex2(const uint32_t& index1, const uint32_t& fingerprint) {
-    return (index1 ^ hasher(fingerprint)) % (table->BucketCount());
+    // OVO CASTANJE IZBACI
+    std::string s = std::to_string(fingerprint);
+    return (index1 ^ hasher(s)) % (table->BucketCount());
   }
 
  public:
@@ -80,7 +82,6 @@ class CuckooFilter {
 
     for (uint32_t count = 0; count < max_num_kicks; count++) {
       bool kickout = count > 0;
-
       old_fingerprint = 0;
 
       if (table->InsertItemToBucket(current_index, current_fingerprint, kickout,
@@ -110,7 +111,7 @@ class CuckooFilter {
     uint32_t index2 = GetIndex2(index1, fingerprint);
 
     found = (victim.used && victim.fingerprint == fingerprint &&
-             (index1 == victim.index || index2 = victim.index));
+             (index1 == victim.index || index2 == victim.index));
     if (found || table->FindFingerprintInBuckets(index1, index2, fingerprint))
       return Ok;
     else
@@ -122,14 +123,14 @@ class CuckooFilter {
     uint32_t index1 = GetIndex1(item);
     uint32_t index2 = GetIndex2(index1, fingerprint);
 
-    if (table->deleteItemFromBucket(index1, fingerprint)) {
+    if (table->DeleteItemFromBucket(index1, fingerprint)) {
       num_items--;
       if (victim.used) {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
         return Ok;
       }
-    } else if (table->deleteItemFromBucket(index2, fingerprint)) {
+    } else if (table->DeleteItemFromBucket(index2, fingerprint)) {
       num_items--;
       if (victim.used) {
         victim.used = false;

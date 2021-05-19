@@ -115,3 +115,14 @@ void test_insert_item_with_kickout_table() {
 
   std::cout << "PASS test_insert_item_with_kickout_table" << std::endl;
 }
+
+int main(int argc, const char* argv[]) {
+  test_construct_table();
+  test_add_items_table();
+  test_get_bucket_table();
+  test_delete_item_table();
+  test_find_fingerprints_in_buckets_table();
+  test_insert_item_with_kickout_table();
+
+  return 0;
+}

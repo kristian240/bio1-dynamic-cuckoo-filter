@@ -59,3 +59,11 @@ void test_remove_item() {
 
   std::cout << "PASS test_remove_item" << std::endl;
 }
+
+int main(int argc, const char* argv[]) {
+  test_max_item();
+  test_added_item_in_filter();
+  test_remove_item();
+
+  return 0;
+}

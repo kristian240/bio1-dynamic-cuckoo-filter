@@ -54,7 +54,7 @@ class CuckooFilter {
     size_t k_items_per_bucket = 4;
 
     // zaokruzi na sljedecu potenciju broja 2
-    size_t num_buckets = pow(2, ceil(log2(max_items / k_items_per_bucket)));
+    size_t num_buckets = max_items < k_items_per_bucket ? 1 : pow(2, ceil(log2(max_items / k_items_per_bucket)));
 
     // victim se ne koristi
     victim.used = false;
@@ -125,18 +125,22 @@ class CuckooFilter {
 
     if (table->DeleteItemFromBucket(index1, fingerprint)) {
       num_items--;
+      
       if (victim.used) {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
-        return Ok;
       }
+      
+      return Ok;
     } else if (table->DeleteItemFromBucket(index2, fingerprint)) {
       num_items--;
+
       if (victim.used) {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
-        return Ok;
       }
+      
+      return Ok;
     } else if (victim.used && fingerprint == victim.fingerprint &&
                (index1 == victim.index || index2 == victim.index)) {
       num_items--;

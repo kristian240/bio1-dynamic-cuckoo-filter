@@ -21,9 +21,10 @@ std::string generateKMer(size_t k) {
 void test_max_item() {
   CuckooFilter<> cf(10);
 
-  for (size_t i = 0; i < 10; i++) assert(cf.Add(generateKMer(20)) == Ok);
+  while (cf.Add(generateKMer(20)) == Ok)
+    ;
 
-  assert(cf.Add(generateKMer(20)) != Ok);
+  assert(cf.Size() <= 10);
 
   std::cout << "PASS test_max_item" << std::endl;
 }

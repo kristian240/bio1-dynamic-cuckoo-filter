@@ -1,7 +1,7 @@
+#include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
-#include <cmath>
 
 #include "hash.h"
 #include "table.h"
@@ -36,9 +36,7 @@ class CuckooFilter {
   static const uint32_t item_mask = (1ULL << bits_per_item) - 1;
 
   // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
-  uint8_t GenerateFingerprint(const item_type& item) {
-    return hasher(item);
-  }
+  uint8_t GenerateFingerprint(const item_type& item) { return hasher(item); }
 
   uint32_t GetIndex1(const item_type& item) {
     // BUCKETCOUNT MI NE PREPOZNAJE
@@ -52,11 +50,15 @@ class CuckooFilter {
   }
 
  public:
-  CuckooFilter(const size_t max_items) : max_items(max_items), num_items(0), victim(), hasher() {
+  CuckooFilter(const size_t max_items)
+      : max_items(max_items), num_items(0), victim(), hasher() {
     size_t k_items_per_bucket = 4;
 
     // zaokruzi na sljedecu potenciju broja 2
-    size_t num_buckets = max_items < k_items_per_bucket ? 1 : pow(2, ceil(log2(((double) max_items) / k_items_per_bucket)));
+    size_t num_buckets =
+        max_items < k_items_per_bucket
+            ? 1
+            : pow(2, ceil(log2(((double)max_items) / k_items_per_bucket)));
 
     // victim se ne koristi
     victim.used = false;
@@ -67,7 +69,7 @@ class CuckooFilter {
   virtual ~CuckooFilter() = default;
 
   Status Add(const item_type& item) {
-    if(num_items == max_items) return NotEnoughSpace;
+    if (num_items == max_items) return NotEnoughSpace;
 
     if (victim.used) return NotEnoughSpace;
 
@@ -85,6 +87,9 @@ class CuckooFilter {
     uint32_t old_fingerprint;
 
     for (uint32_t count = 0; count < max_num_kicks; count++) {
+      // If insertion is not possible on first try, there is second index that
+      // can be used for insertion. So kickout must not happen on first try, and
+      // can happen on any of the next insertions for this item
       bool kickout = count > 0;
       old_fingerprint = 0;
 
@@ -134,7 +139,7 @@ class CuckooFilter {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
       }
-      
+
       return Ok;
     } else if (table->DeleteItemFromBucket(index2, fingerprint)) {
       num_items--;
@@ -143,7 +148,7 @@ class CuckooFilter {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
       }
-      
+
       return Ok;
     } else if (victim.used && fingerprint == victim.fingerprint &&
                (index1 == victim.index || index2 == victim.index)) {

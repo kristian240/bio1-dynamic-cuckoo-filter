@@ -22,7 +22,7 @@
   }*/
 
 void test_construct_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {
       assert(table.ReadItem(i, j) == 0);
@@ -33,7 +33,7 @@ void test_construct_table() {
   std::cout << "PASS test_construct_table" << std::endl;
 }
 void test_add_items_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
 
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -49,7 +49,7 @@ void test_add_items_table() {
   std::cout << "PASS test_add_items_table" << std::endl;
 }
 void test_get_bucket_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
 
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -62,7 +62,7 @@ void test_get_bucket_table() {
   std::cout << "PASS test_get_Bucket_table" << std::endl;
 }
 void test_delete_item_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
 
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -83,7 +83,7 @@ void test_delete_item_table() {
   std::cout << "PASS test_delete_item_table" << std::endl;
 }
 void test_find_fingerprints_in_buckets_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
 
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -97,7 +97,7 @@ void test_find_fingerprints_in_buckets_table() {
   std::cout << "PASS test_find_fingerprints_in_buckets_table" << std::endl;
 }
 void test_insert_item_with_kickout_table() {
-  cuckoofilterbio1::Table<32> table(10);
+  cuckoofilterbio1::Table<> table(10);
 
   for (int i = 0; i < 10; ++i) {
     for (int j = 0; j < 4; ++j) {

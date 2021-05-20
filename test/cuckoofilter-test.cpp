@@ -19,12 +19,12 @@ std::string generateKMer(size_t k) {
 }
 
 void test_max_item() {
-  CuckooFilter<> cf(16);
+  CuckooFilter<uint32_t> cf(10);
 
   while (cf.Add(generateKMer(20)) == Ok)
     ;
 
-  assert(cf.Size() <= 16);
+  assert(cf.Size() <= 10);
 
   std::cout << "PASS test_max_item" << std::endl;
 }
@@ -32,7 +32,7 @@ void test_max_item() {
 void test_added_item_in_filter() {
   CuckooFilter<> cf(10);
   std::string s = generateKMer(20);
-  
+
   assert(cf.Add(s) == Ok);
   assert(cf.Contain(s) == Ok);
   assert(cf.Size() == (size_t)1);
@@ -58,7 +58,6 @@ void test_remove_item() {
 
   std::cout << "PASS test_remove_item" << std::endl;
 }
-
 
 int main(int argc, const char* argv[]) {
   test_max_item();

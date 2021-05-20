@@ -11,12 +11,11 @@
 using namespace std;
 
 namespace cuckoofilterbio1 {
-// VRATI BUCKET BITS DA BUDE CHAR ILI UINT8_T!!!
-template <size_t bits_per_item>
+template <class uintx = uint8_t>
 class Table {
   static const size_t k_items_per_bucket = 4;
-  static const size_t k_bytes_per_bucket =
-      ceil((bits_per_item * k_items_per_bucket) / 8.);
+  size_t bits_per_item;
+  size_t k_bytes_per_bucket;
 
   /*template <typename T>
   struct array_deleter {
@@ -24,10 +23,10 @@ class Table {
   };*/
 
   class Bucket {
-    uint8_t bits[k_bytes_per_bucket];
+    uintx bits[k_items_per_bucket];
 
    public:
-    uint8_t operator[](const uint32_t j) { return bits[j]; }
+    uint32_t operator[](const uint32_t j) { return bits[j]; }
     void write(const uint32_t j, const uint32_t fingerprint) {
       bits[j] = fingerprint;
     }
@@ -38,6 +37,15 @@ class Table {
 
  public:
   Table(const size_t bucket_count) : bucket_count(bucket_count) {
+    if (std::is_same<uintx, uint8_t>::value) {
+      bits_per_item = 8;
+    } else if (std::is_same<uintx, uint16_t>::value) {
+      bits_per_item = 16;
+    } else if (std::is_same<uintx, uint32_t>::value) {
+      bits_per_item = 32;
+    }
+    k_bytes_per_bucket = (bits_per_item * k_items_per_bucket) / 8.;
+
     buckets = make_unique<Bucket[]>(bucket_count);
     memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }

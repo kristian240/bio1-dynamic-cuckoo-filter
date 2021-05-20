@@ -1,7 +1,7 @@
+#include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
-#include <cmath>
 
 #include "hash.h"
 #include "table.h"
@@ -21,58 +21,69 @@ class Victim {
 };
 
 const size_t max_num_kicks = 500;
-// Tu je bits_per_item = 7, a u table je 32 default PAZI!!!!!!!!!!!!!!!
-template <typename item_type = std::string, size_t bits_per_item = 7,
-          template <size_t> class table_type = Table, typename hash_used = Hash>
+template <typename uintx = uint8_t, typename item_type = std::string,
+          class table_type = Table<uintx>, typename hash_used = Hash>
 class CuckooFilter {
-  shared_ptr<table_type<bits_per_item>> table;
+  // using uintx = uint8_t;
+  shared_ptr<table_type> table;
   size_t num_items;
   size_t max_items;
+  size_t bits_per_item;
 
-  // U konstruktoru napravi victim.false;
   Victim victim;
 
   hash_used hasher;
-  static const uint32_t item_mask = (1ULL << bits_per_item) - 1;
+  uint32_t item_mask;
 
   // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
-  uint8_t GenerateFingerprint(const item_type& item) {
-    return hasher(item);
+  uint32_t GenerateFingerprint(const item_type& item) {
+    return hasher(item) & item_mask;
   }
 
   uint32_t GetIndex1(const item_type& item) {
-    // BUCKETCOUNT MI NE PREPOZNAJE
     return hasher(item) % (table->BucketCount());
   }
 
   uint32_t GetIndex2(const uint32_t& index1, const uint32_t& fingerprint) {
-    // OVO CASTANJE IZBACI
     std::string s = std::to_string(fingerprint);
     return (index1 ^ hasher(s)) % (table->BucketCount());
   }
 
  public:
-  CuckooFilter(const size_t max_items) : max_items(max_items), num_items(0), victim(), hasher() {
+  CuckooFilter(const size_t max_items)
+      : max_items(max_items), num_items(0), victim(), hasher() {
+    if (std::is_same<uintx, uint8_t>::value) {
+      bits_per_item = 8;
+    } else if (std::is_same<uintx, uint16_t>::value) {
+      bits_per_item = 16;
+    } else if (std::is_same<uintx, uint32_t>::value) {
+      bits_per_item = 32;
+    }
     size_t k_items_per_bucket = 4;
+    item_mask = (1ULL << bits_per_item) - 1;
 
     // zaokruzi na sljedecu potenciju broja 2
-    size_t num_buckets = max_items < k_items_per_bucket ? 1 : pow(2, ceil(log2(((double) max_items) / k_items_per_bucket)));
+    size_t num_buckets =
+        max_items < k_items_per_bucket
+            ? 1
+            : pow(2, ceil(log2(((double)max_items) / k_items_per_bucket)));
 
-    // victim se ne koristi
     victim.used = false;
 
-    table = make_shared<table_type<bits_per_item>>(num_buckets);
+    table = make_shared<table_type>(num_buckets);
   }
 
   virtual ~CuckooFilter() = default;
 
   Status Add(const item_type& item) {
-    if(num_items == max_items) return NotEnoughSpace;
+    if (num_items == max_items) return NotEnoughSpace;
 
     if (victim.used) return NotEnoughSpace;
 
     uint32_t index = GetIndex1(item);
     uint32_t fingerprint = GenerateFingerprint(item);
+
+    // std::cout << index << "  " << fingerprint << std::endl;
 
     return AddImpl(index, fingerprint);
   }
@@ -134,7 +145,7 @@ class CuckooFilter {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
       }
-      
+
       return Ok;
     } else if (table->DeleteItemFromBucket(index2, fingerprint)) {
       num_items--;
@@ -143,7 +154,7 @@ class CuckooFilter {
         victim.used = false;
         AddImpl(victim.index, victim.fingerprint);
       }
-      
+
       return Ok;
     } else if (victim.used && fingerprint == victim.fingerprint &&
                (index1 == victim.index || index2 == victim.index)) {

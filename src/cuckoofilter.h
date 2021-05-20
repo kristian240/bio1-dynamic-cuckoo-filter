@@ -59,6 +59,7 @@ class CuckooFilter {
     } else if (std::is_same<uintx, uint32_t>::value) {
       bits_per_item = 32;
     }
+
     size_t k_items_per_bucket = 4;
     item_mask = (1ULL << bits_per_item) - 1;
 
@@ -96,6 +97,9 @@ class CuckooFilter {
     uint32_t old_fingerprint;
 
     for (uint32_t count = 0; count < max_num_kicks; count++) {
+      // If insertion is not possible on first try, there is second index that
+      // can be used for insertion. So kickout must not happen on first try, and
+      // can happen on any of the next insertions for this item
       bool kickout = count > 0;
       old_fingerprint = 0;
 

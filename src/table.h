@@ -11,8 +11,8 @@
 using namespace std;
 
 namespace cuckoofilterbio1 {
-// VRATI BUCKET BITS DA BUDE CHAR ILI UINT8_T!!!
 template <size_t bits_per_item>
+// Class Table is used for storing data into buckets.
 class Table {
   static const size_t k_items_per_bucket = 4;
   static const size_t k_bytes_per_bucket =
@@ -37,28 +37,37 @@ class Table {
   size_t bucket_count;
 
  public:
+  // Table constructor takes bucket_count as a parameter and will create an
+  // empty array of buckets
   Table(const size_t bucket_count) : bucket_count(bucket_count) {
     buckets = make_unique<Bucket[]>(bucket_count);
     memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }
 
+  // Table destructor
   virtual ~Table() = default;
 
+  // BucketCount returns number of bucket in a Table
   size_t BucketCount() const { return bucket_count; }
 
+  // SizeTable returns total size of a Table (used and unused)
   size_t SizeTable() const { return k_items_per_bucket * bucket_count; }
 
+  // SizeTable returns total size of a Table in bytes (used and unused)
   size_t SizeInBytes() const { return k_bytes_per_bucket * bucket_count; }
 
+  // ReadItem returns an item at bucket i and column j
   uint32_t ReadItem(const uint32_t i, const uint32_t j) {
     return buckets[i][j];
   }
 
+  // WriteItem writes an item (fingerprint) at bucket i and column j
   void WriteItem(const uint32_t i, const uint32_t j,
                  const uint32_t fingerprint) {
     buckets[i].write(j, fingerprint);
   }
 
+  // GetBucket returns all items from bucket i
   vector<uint32_t> GetBucket(const uint32_t i) {
     vector<uint32_t> bucket;
 
@@ -68,11 +77,11 @@ class Table {
     return bucket;
   }
 
-  bool DeleteItemFromBucket(const uint32_t &index,
-                            const uint32_t &fingerprint) {
+  // DeleteItemFromBucket deletes an item (fingerprint) from bucket i
+  bool DeleteItemFromBucket(const uint32_t &i, const uint32_t &fingerprint) {
     for (uint32_t j = 0; j < k_items_per_bucket; j++) {
-      if (ReadItem(index, j) == fingerprint) {
-        WriteItem(index, j, 0);
+      if (ReadItem(i, j) == fingerprint) {
+        WriteItem(i, j, 0);
 
         return true;
       }
@@ -81,22 +90,27 @@ class Table {
     return false;
   }
 
-  bool FindFingerprintInBuckets(const uint32_t &index1, const uint32_t &index2,
+  // FindFingerprintInBuckets returns a true if item is found in bucket i1 or
+  // i2, false otherwise
+  bool FindFingerprintInBuckets(const uint32_t &i1, const uint32_t &i2,
                                 const uint32_t &fingerprint) {
     for (uint32_t j = 0; j < k_items_per_bucket; j++) {
-      if (ReadItem(index1, j) == fingerprint ||
-          ReadItem(index2, j) == fingerprint)
+      if (ReadItem(i1, j) == fingerprint || ReadItem(i2, j) == fingerprint)
         return true;
     }
 
     return false;
   }
 
-  bool InsertItemToBucket(const uint32_t &index, const uint32_t &fingerprint,
+  // InsertItemToBucket inserts an item (fingerprint) to a bucket i. If
+  // insertion was successful, returns true. If insertions was unsuccessful,
+  // returns false and if kickout is true will make a kickout of a random item
+  // from bucket i.
+  bool InsertItemToBucket(const uint32_t &i, const uint32_t &fingerprint,
                           const bool &kickout, uint32_t &old_fingerprint) {
     for (uint32_t j = 0; j < k_items_per_bucket; j++) {
-      if (ReadItem(index, j) == 0) {
-        WriteItem(index, j, fingerprint);
+      if (ReadItem(i, j) == 0) {
+        WriteItem(i, j, fingerprint);
 
         return true;
       }
@@ -104,8 +118,8 @@ class Table {
 
     if (kickout) {
       uint32_t r = rand() % k_items_per_bucket;
-      old_fingerprint = ReadItem(index, r);
-      WriteItem(index, r, fingerprint);
+      old_fingerprint = ReadItem(i, r);
+      WriteItem(i, r, fingerprint);
     }
 
     return false;

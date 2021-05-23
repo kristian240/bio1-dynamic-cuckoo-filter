@@ -189,6 +189,8 @@ class CuckooFilter {
     return NotEnoughSpace;
   }
 
+  std::shared_ptr<Victim> GetVictim() { return std::make_shared(victim); }
+
   string Info() {
     std::stringstream ss;
     ss << "CuckooFilter Status:\n"

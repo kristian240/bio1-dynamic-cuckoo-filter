@@ -87,92 +87,91 @@ class DynamicCuckooFilter {
 
     return add_status;
   }
-}
 
-Status
-Contains(const item_type& item) {
-  std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
+  Status Contains(const item_type& item) {
+    std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
 
-  while (tmp_curr_cf_node != nullptr) {
-    if (tmp_curr_cf_node->cf->Contains(item) == Ok) {
-      return Ok;
-    }
-
-    tmp_curr_cf_node = tmp_curr_cf_node->next;
-  }
-
-  return NotFound;
-}
-
-Status Delete(const item_type& item) {
-  std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
-
-  while (tmp_curr_cf_node != nullptr) {
-    if (tmp_curr_cf_node->cf->Delete(item) == Ok) {
-      return Ok;
-    }
-
-    tmp_curr_cf_node = tmp_curr_cf_node->next;
-  }
-
-  return NotFound;
-}
-
-Status Compact(const item_type& item) {
-  std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
-  std::priority_queue<TypedCuckooFilter, std::vector<TypedCuckooFilter>,
-                      DynamicCuckooFilterQueueComparator>
-      dynamic_cuckoo_queue;
-
-  // napravi CFQ
-  while (tmp_curr_cf_node != nullptr) {
-    if (tmp_curr_cf_node.get()->cf.LoadFactor() < capacity)
-      dynamic_cuckoo_queue.push(tmp_curr_cf_node.get()->cf);
-
-    tmp_curr_cf_node = tmp_curr_cf_node.get()->next;
-  }
-
-  // za svaki CF u CFQ
-  for (uint32_t i = 1; i < dynamic_cuckoo_queue.size(); i++) {
-    std::shared_ptr<TypedCuckooFilter> curr_cf_node = dynamic_cuckoo_queue.c[i];
-
-    // za svaki Bucket u CF
-    size_t bucket_count = curr_cf_node->GetBucketCount();
-    for (uint32_t j = 1; j < bucket_count; j++) {
-      std::vector<uint32_t> bucket_at_j_from_curr_cf =
-          curr_cf_node->GetBucketFromTable(j);
-
-      // za svaki CF koji je iza trenutnog
-      for (uint32_t k = dynamic_cuckoo_queue.size() - 1;
-           bucket_at_j_from_curr_cf.size() > 0 && k > i; k--) {
-        // prebaci fingerprint iz trenutnog u neki od prethodnih
-        while (bucket_at_j_from_curr_cf.size() > 0 &&
-               Ok == dynamic_cuckoo_queue.c[k].AddToBucket(
-                         i, bucket_at_j_from_curr_cf[0]))
-          // izbrisi prebaceni fingerprint
-          bucket_at_j_from_curr_cf.erase(bucket_at_j_from_curr_cf.begin());
+    while (tmp_curr_cf_node != nullptr) {
+      if (tmp_curr_cf_node->cf->Contains(item) == Ok) {
+        return Ok;
       }
 
-      // ako je CF sada prazan, ukloni ga
-      if (curr_cf_node->Size() == 0) {
-        tmp_curr_cf_node = head_cf_node;
+      tmp_curr_cf_node = tmp_curr_cf_node->next;
+    }
 
-        while (tmp_curr_cf_node->next != nullptr) {
-          if (tmp_curr_cf_node->next->cf.Size() == 0) {
-            tmp_curr_cf_node->next = tmp_curr_cf_node->next->next;
+    return NotFound;
+  }
 
-            break;
-          }
+  Status Delete(const item_type& item) {
+    std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
 
-          tmp_curr_cf_node = tmp_curr_cf_node->next;
+    while (tmp_curr_cf_node != nullptr) {
+      if (tmp_curr_cf_node->cf->Delete(item) == Ok) {
+        return Ok;
+      }
+
+      tmp_curr_cf_node = tmp_curr_cf_node->next;
+    }
+
+    return NotFound;
+  }
+
+  Status Compact(const item_type& item) {
+    std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
+    std::priority_queue<TypedCuckooFilter, std::vector<TypedCuckooFilter>,
+                        DynamicCuckooFilterQueueComparator>
+        dynamic_cuckoo_queue;
+
+    // napravi CFQ
+    while (tmp_curr_cf_node != nullptr) {
+      if (tmp_curr_cf_node.get()->cf.LoadFactor() < capacity)
+        dynamic_cuckoo_queue.push(tmp_curr_cf_node.get()->cf);
+
+      tmp_curr_cf_node = tmp_curr_cf_node.get()->next;
+    }
+
+    // za svaki CF u CFQ
+    for (uint32_t i = 1; i < dynamic_cuckoo_queue.size(); i++) {
+      std::shared_ptr<TypedCuckooFilter> curr_cf_node =
+          dynamic_cuckoo_queue.c[i];
+
+      // za svaki Bucket u CF
+      size_t bucket_count = curr_cf_node->GetBucketCount();
+      for (uint32_t j = 1; j < bucket_count; j++) {
+        std::vector<uint32_t> bucket_at_j_from_curr_cf =
+            curr_cf_node->GetBucketFromTable(j);
+
+        // za svaki CF koji je iza trenutnog
+        for (uint32_t k = dynamic_cuckoo_queue.size() - 1;
+             bucket_at_j_from_curr_cf.size() > 0 && k > i; k--) {
+          // prebaci fingerprint iz trenutnog u neki od prethodnih
+          while (bucket_at_j_from_curr_cf.size() > 0 &&
+                 Ok == dynamic_cuckoo_queue.c[k].AddToBucket(
+                           i, bucket_at_j_from_curr_cf[0]))
+            // izbrisi prebaceni fingerprint
+            bucket_at_j_from_curr_cf.erase(bucket_at_j_from_curr_cf.begin());
         }
 
-        break;
+        // ako je CF sada prazan, ukloni ga
+        if (curr_cf_node->Size() == 0) {
+          tmp_curr_cf_node = head_cf_node;
+
+          while (tmp_curr_cf_node->next != nullptr) {
+            if (tmp_curr_cf_node->next->cf.Size() == 0) {
+              tmp_curr_cf_node->next = tmp_curr_cf_node->next->next;
+
+              break;
+            }
+
+            tmp_curr_cf_node = tmp_curr_cf_node->next;
+          }
+
+          break;
+        }
       }
     }
-  }
 
-  return Ok;
-}
+    return Ok;
+  }
 };
 }  // namespace cuckoofilterbio1

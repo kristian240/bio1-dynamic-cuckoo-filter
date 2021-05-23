@@ -25,7 +25,7 @@ template <typename uintx = uint8_t, typename item_type = std::string,
           class table_type = Table<uintx>, typename hash_used = Hash>
 class CuckooFilter {
   // using uintx = uint8_t;
-  shared_ptr<table_type> table;
+  std::unique_ptr<table_type> table;
   size_t num_items;
   size_t max_items;
   size_t bits_per_item;
@@ -71,7 +71,7 @@ class CuckooFilter {
 
     victim.used = false;
 
-    table = make_shared<table_type>(num_buckets);
+    table = std::make_unique<table_type>(num_buckets);
   }
 
   virtual ~CuckooFilter() = default;
@@ -91,7 +91,7 @@ class CuckooFilter {
 
   // Ako je usao u AddImpl, ubacit se item sigurno, ako nista na victimu ce
   // netko biti
-  Status AddImpl(const uint32_t index, const uint32_t fingerprint) {
+  Status AddImpl(const uint32_t& index, const uint32_t& fingerprint) {
     uint32_t current_index = index;
     uint32_t current_fingerprint = fingerprint;
     uint32_t old_fingerprint;
@@ -179,12 +179,12 @@ class CuckooFilter {
 
   size_t GetBucketCount() const { return table->BucketCount(); }
 
-  vector<uint32_t> GetBucketFromTable(const uint32_t i) {
+  vector<uint32_t> GetBucketFromTable(const uint32_t& i) {
     return table->GetBucket(i);
   }
 
-  Status AddToBucket(const uint32_t i, const item_type& item) {
-    if (table->InsertItemToBucket(i, item, false, nullptr)) return Ok;
+  Status AddToBucket(const uint32_t& i, const item_type& item) {
+    if (table->InsertItemToBucket(i, item, false, 0)) return Ok;
 
     return NotEnoughSpace;
   }

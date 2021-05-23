@@ -27,13 +27,13 @@ class Table {
     uintx bits[k_items_per_bucket];
 
    public:
-    uint32_t operator[](const uint32_t j) { return bits[j]; }
-    void write(const uint32_t j, const uint32_t fingerprint) {
+    uint32_t operator[](const uint32_t &j) { return bits[j]; }
+    void write(const uint32_t &j, const uint32_t &fingerprint) {
       bits[j] = fingerprint;
     }
   };
 
-  unique_ptr<Bucket[]> buckets;
+  std::unique_ptr<Bucket[]> buckets;
   size_t bucket_count;
 
  public:
@@ -49,7 +49,7 @@ class Table {
     }
     k_bytes_per_bucket = (bits_per_item * k_items_per_bucket) / 8.;
 
-    buckets = make_unique<Bucket[]>(bucket_count);
+    buckets = std::make_unique<Bucket[]>(bucket_count);
     memset(buckets.get(), 0, k_bytes_per_bucket * bucket_count);
   }
 
@@ -66,18 +66,18 @@ class Table {
   size_t SizeInBytes() const { return k_bytes_per_bucket * bucket_count; }
 
   // ReadItem returns an item at bucket i and column j
-  uint32_t ReadItem(const uint32_t i, const uint32_t j) {
+  uint32_t ReadItem(const uint32_t &i, const uint32_t &j) {
     return buckets[i][j];
   }
 
   // WriteItem writes an item (fingerprint) at bucket i and column j
-  void WriteItem(const uint32_t i, const uint32_t j,
-                 const uint32_t fingerprint) {
+  void WriteItem(const uint32_t &i, const uint32_t &j,
+                 const uint32_t &fingerprint) {
     buckets[i].write(j, fingerprint);
   }
 
   // GetBucket returns all items from bucket i
-  vector<uint32_t> GetBucket(const uint32_t i) {
+  vector<uint32_t> GetBucket(const uint32_t &i) {
     vector<uint32_t> bucket;
 
     for (uint32_t j = 0; j < k_items_per_bucket; j++)

@@ -7,12 +7,15 @@
 #include "table.h"
 
 namespace cuckoofilterbio1 {
+// enum Status that is used to indicate the end status of CF methods
 enum Status {
   Ok = 0,
   NotFound = 1,
   NotEnoughSpace = 2,
 };
 
+// class Victim is used when there is no more space in a CF and there were
+// too many kickouts
 class Victim {
  public:
   std::size_t index;
@@ -20,11 +23,18 @@ class Victim {
   bool used;
 };
 
+// Max limit of how much kickouts can happen in an Add method
 const size_t max_num_kicks = 500;
+
+// class CuckooFilter contains a reference to one table
+// unitx - size of a fingerprint; uint8_t (default), uint16_t, uint32_t
+// item_type - type of a items that will be added to a CuckooFilter (std::string
+// by defualt) class table_type - table class that will be used for storing
+// items hash_used - class used for calculating a hash for an item (uses ()
+// operator)
 template <typename uintx = uint8_t, typename item_type = std::string,
           class table_type = Table<uintx>, typename hash_used = Hash>
 class CuckooFilter {
-  // using uintx = uint8_t;
   std::unique_ptr<table_type> table;
   size_t num_items;
   size_t max_items;
@@ -35,21 +45,26 @@ class CuckooFilter {
   hash_used hasher;
   uint32_t item_mask;
 
-  // PAZI OVDJE RADI SAMO ZA STRING ZA SAD..
+  // GenerateFingerprint will generate a fingerprint for an item
   uint32_t GenerateFingerprint(const item_type& item) {
     return hasher(item) & item_mask;
   }
 
+  // GenerateFingerprint will calculate first index for an item
   uint32_t GetIndex1(const item_type& item) {
     return hasher(item) % (table->BucketCount());
   }
 
+  // GenerateFingerprint will calculate second index for an item based on the
+  // first index and the fingerptint
   uint32_t GetIndex2(const uint32_t& index1, const uint32_t& fingerprint) {
     std::string s = std::to_string(fingerprint);
     return (index1 ^ hasher(s)) % (table->BucketCount());
   }
 
  public:
+  // CuckooFilter constructor takes max_items as an argument and will create an
+  // empty CF
   CuckooFilter(const size_t max_items)
       : max_items(max_items), num_items(0), victim(), hasher() {
     if (std::is_same<uintx, uint8_t>::value) {
@@ -74,8 +89,13 @@ class CuckooFilter {
     table = std::make_unique<table_type>(num_buckets);
   }
 
+  // CuckooFilter destructor
   virtual ~CuckooFilter() = default;
 
+  // Method Add will check if there is room to add an item and if the victim is
+  // not in use. If both conditions are satisified, method will create first
+  // index and a fingerprint for an item. Then, it will 100% add an item in the
+  // CF.
   Status Add(const item_type& item) {
     if (num_items == max_items) return NotEnoughSpace;
 
@@ -84,13 +104,18 @@ class CuckooFilter {
     uint32_t index = GetIndex1(item);
     uint32_t fingerprint = GenerateFingerprint(item);
 
-    // std::cout << index << "  " << fingerprint << std::endl;
-
     return AddImpl(index, fingerprint);
   }
 
-  // Ako je usao u AddImpl, ubacit se item sigurno, ako nista na victimu ce
-  // netko biti
+  // Method AddImpl will try to add an item to a bucket[index]. If there is no
+  // space left, will calculate alternate index and will try to add it to
+  // bucket[index2]. If there is no space left on this bucket too, kickout will
+  // occure. Once kickout occures, alternate index is calculated for a kickouted
+  // item and the whole adding process will be repeated.
+  // In order to prevent continous loop, max_num_kicks will limit the number of
+  // kickouts. Once the limit is exceeded, victim will be used. Victim will hold
+  // the last kickout value and will prevent further adding to the CF. Victim
+  // can become unused once one item is deleted from the CF.
   Status AddImpl(const uint32_t& index, const uint32_t& fingerprint) {
     uint32_t current_index = index;
     uint32_t current_fingerprint = fingerprint;
@@ -123,6 +148,7 @@ class CuckooFilter {
     return Ok;
   }
 
+  // Contain method will check if provided item is stored in the CF
   Status Contain(const item_type& item) {
     bool found = false;
     uint32_t fingerprint = GenerateFingerprint(item);
@@ -137,6 +163,8 @@ class CuckooFilter {
       return NotFound;
   }
 
+  // Delete method will delete an item from the CF. If vitcim was in use, it
+  // will try to add it again.
   Status Delete(const item_type& item) {
     uint32_t fingerprint = GenerateFingerprint(item);
     uint32_t index1 = GetIndex1(item);
@@ -169,29 +197,41 @@ class CuckooFilter {
     return NotFound;
   }
 
+  // Size returns number of items stored in the CF
   size_t Size() const { return num_items; }
 
+  // SizeInBytes returns number of bytes stored in the CF
   size_t SizeInBytes() const { return table->SizeInBytes(); }
 
+  // LoadFactor returns load factor of the CF
   double LoadFactor() const { return 1.0 * Size() / table->SizeTable(); }
 
+  // BitsPerItem returns bits per item
   double BitsPerItem() const { return 8.0 * table->SizeInBytes() / Size(); }
 
+  // GetBucketCount returns bucket count
   size_t GetBucketCount() const { return table->BucketCount(); }
 
+  // GetBucketCount returns a bucket at index i from the table
   vector<uint32_t> GetBucketFromTable(const uint32_t& i) {
     return table->GetBucket(i);
   }
+
+  // DeleteItemFromBucketDirect deletes an item from a bucket at index i from
+  // the table
   Status DeleteItemFromBucketDirect(const uint32_t& i,
                                     const uint32_t& fingerprint) {
     return table->DeleteItemFromBucket(i, fingerprint) ? Ok : NotFound;
   }
+
+  // AddToBucket adds an item ta a bucket at index i
   Status AddToBucket(const uint32_t& i, const item_type& item) {
     if (table->InsertItemToBucket(i, item, false, 0)) return Ok;
 
     return NotEnoughSpace;
   }
 
+  // GetVictim returns an victim
   std::shared_ptr<Victim> GetVictim() {
     return std::make_shared<Victim>(victim);
   }

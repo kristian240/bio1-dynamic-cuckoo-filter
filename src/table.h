@@ -18,11 +18,6 @@ class Table {
   size_t bits_per_item;
   size_t k_bytes_per_bucket;
 
-  /*template <typename T>
-  struct array_deleter {
-    void operator()(T const *p) { delete[] p; }
-  };*/
-
   class Bucket {
     uintx bits[k_items_per_bucket];
 

@@ -182,14 +182,19 @@ class CuckooFilter {
   vector<uint32_t> GetBucketFromTable(const uint32_t& i) {
     return table->GetBucket(i);
   }
-
+  Status DeleteItemFromBucketDirect(const uint32_t& i,
+                                    const uint32_t& fingerprint) {
+    return table->DeleteItemFromBucket(i, fingerprint) ? Ok : NotFound;
+  }
   Status AddToBucket(const uint32_t& i, const item_type& item) {
     if (table->InsertItemToBucket(i, item, false, 0)) return Ok;
 
     return NotEnoughSpace;
   }
 
-  std::shared_ptr<Victim> GetVictim() { return std::make_shared(victim); }
+  std::shared_ptr<Victim> GetVictim() {
+    return std::make_shared<Victim>(victim);
+  }
 
   string Info() {
     std::stringstream ss;

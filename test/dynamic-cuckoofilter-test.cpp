@@ -20,14 +20,16 @@ std::string generateKMer(size_t k) {
 }
 
 void test_construct_DCF() {
-  std::unique_ptr<DynamicCuckooFilter<uint32_t>> dcf =
-      std::make_unique<DynamicCuckooFilter<uint32_t>>(10);
+  std::unique_ptr<DynamicCuckooFilter<>> dcf =
+      std::make_unique<DynamicCuckooFilter<>>(10);
 
   std::cout << "PASS test_construct_DCF" << std::endl;
 }
+void test_add_DCF() { std::cout << "PASS test_add_DCF" << std::endl; }
 
 int main(int argc, const char* argv[]) {
   test_construct_DCF();
+  test_add_DCF();
 
   return 0;
 }

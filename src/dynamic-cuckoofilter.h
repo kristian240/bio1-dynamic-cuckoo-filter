@@ -25,26 +25,26 @@ class DynamicCuckooFilter {
      }
    }; */
 
-  static auto DynamicCuckooFilterComparator =
-      [](std::shared_ptr<TypedCuckooFilter> lhs,
-         std::shared_ptr<TypedCuckooFilter> rhs) {
-        return lhs->Size() < rhs->Size();
-      };
+  /* static auto DynamicCuckooFilterComparator =
+       [](std::shared_ptr<TypedCuckooFilter> lhs,
+          std::shared_ptr<TypedCuckooFilter> rhs) {
+         return lhs->Size() < rhs->Size();
+       }; */
 
   class DynamicCuckooFilterNode {
+   public:
     std::shared_ptr<TypedCuckooFilter> cf;
     std::shared_ptr<DynamicCuckooFilterNode> next;
 
-   public:
     DynamicCuckooFilterNode(std::shared_ptr<TypedCuckooFilter> cf,
                             std::shared_ptr<DynamicCuckooFilterNode> next)
         : cf(cf), next(next) {}
-    ~DynamicCuckooFilterNode() {
-      std::cout << "Obrisao se jedan cf!" << std::endl;
-    }
+    virtual ~DynamicCuckooFilterNode() = default;
   };
 
   // U konstruktoru je namjesten da bude 0.9
+  // Capacity se usporedjuje s nasim max_items(onoliko koliko smo mi zadali) a
+  // ne s maks kapacitetom CF-a
   const double capacity;
   int counter_CF;
   const size_t max_items;
@@ -64,7 +64,7 @@ class DynamicCuckooFilter {
 
   // Ne moze se nikad desiti da mi vrati notEnoughSpace
   Status Add(const item_type& item) {
-    if (curr_cf_node->cf->LoadFactor() > capacity) {
+    while (curr_cf_node->cf->LoadFactor() >= capacity) {
       if (curr_cf_node->next == nullptr) {
         curr_cf_node->next = std::make_shared<DynamicCuckooFilterNode>(
             std::make_shared<TypedCuckooFilter>(max_items), nullptr);
@@ -82,7 +82,8 @@ class DynamicCuckooFilter {
     }
 
     while (victim->used == true) {
-      victim->used == false;
+      // obrisi victim
+      tmp_curr_cf_node->cf->DeleteVictim(victim->index, victim->fingerprint);
 
       if (tmp_curr_cf_node->next == nullptr) {
         tmp_curr_cf_node->next = std::make_shared<DynamicCuckooFilterNode>(
@@ -90,7 +91,8 @@ class DynamicCuckooFilter {
         ++counter_CF;
       }
       tmp_curr_cf_node = tmp_curr_cf_node->next;
-      add_status = tmp_curr_cf_node->cf->Add(victim->fingerprint);
+      add_status =
+          tmp_curr_cf_node->cf->AddImpl(victim->index, victim->fingerprint);
       victim = tmp_curr_cf_node->cf->GetVictim();
     }
     // Mora biti OK
@@ -101,7 +103,7 @@ class DynamicCuckooFilter {
     std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
 
     while (tmp_curr_cf_node != nullptr) {
-      if (tmp_curr_cf_node->cf->Contains(item) == Ok) {
+      if (tmp_curr_cf_node->cf->Contain(item) == Ok) {
         return Ok;
       }
 
@@ -125,7 +127,7 @@ class DynamicCuckooFilter {
     return NotFound;
   }
 
-  Status Compact(const item_type& item) {
+  Status Compact() {
     std::shared_ptr<DynamicCuckooFilterNode> tmp_curr_cf_node = head_cf_node;
     std::vector<std::shared_ptr<TypedCuckooFilter>> dynamic_cuckoo_queue;
 
@@ -138,11 +140,14 @@ class DynamicCuckooFilter {
     }
 
     std::sort(dynamic_cuckoo_queue.begin(), dynamic_cuckoo_queue.end(),
-              DynamicCuckooFilterComparator);
+              [](std::shared_ptr<TypedCuckooFilter> lhs,
+                 std::shared_ptr<TypedCuckooFilter> rhs) {
+                return lhs->Size() < rhs->Size();
+              });
 
     // za svaki CF u CFQ
-    for (uint32_t i = 1; i < dynamic_cuckoo_queue.size(); i++) {
-      std::shared_ptr<TypedCuckooFilter> tmp_cf = dynamic_cuckoo_queue[i - 1];
+    for (uint32_t i = 0; i < dynamic_cuckoo_queue.size(); i++) {
+      std::shared_ptr<TypedCuckooFilter> tmp_cf = dynamic_cuckoo_queue[i];
 
       // za svaki Bucket u CF
       size_t bucket_count = tmp_cf->GetBucketCount();
@@ -157,10 +162,12 @@ class DynamicCuckooFilter {
           // Ako u bucketu drugome nema vise mjesta, nece biti vise mjesta ni za
           // drugoga
           while (bucket_at_j_from_tmp_cf.size() > 0 &&
+                 dynamic_cuckoo_queue[k]->LoadFactor() < capacity &&
                  Ok == dynamic_cuckoo_queue[k]->AddToBucket(
                            i, bucket_at_j_from_tmp_cf[0])) {
             // izbrisi prebaceni fingerprint
             tmp_cf->DeleteItemFromBucketDirect(j, bucket_at_j_from_tmp_cf[0]);
+
             bucket_at_j_from_tmp_cf.erase(bucket_at_j_from_tmp_cf.begin());
           }
         }
@@ -170,7 +177,7 @@ class DynamicCuckooFilter {
           tmp_curr_cf_node = head_cf_node;
 
           while (tmp_curr_cf_node->next != nullptr) {
-            if (tmp_curr_cf_node->next->cf.Size() == 0) {
+            if (tmp_curr_cf_node->next->cf->Size() == 0) {
               tmp_curr_cf_node->next = tmp_curr_cf_node->next->next;
               break;
             }
@@ -184,7 +191,7 @@ class DynamicCuckooFilter {
     }
     // Restart curr_cf_node
     curr_cf_node = head_cf_node;
-    while (curr_cf_node->cf->LoadFactor() > capacity) {
+    while (curr_cf_node->cf->LoadFactor() >= capacity) {
       curr_cf_node = curr_cf_node->next;
     }
 

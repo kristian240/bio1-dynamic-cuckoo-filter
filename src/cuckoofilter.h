@@ -18,8 +18,8 @@ enum Status {
 // too many kickouts
 class Victim {
  public:
-  std::size_t index;
-  std::size_t fingerprint;
+  uint32_t index;
+  uint32_t fingerprint;
   bool used;
 };
 
@@ -204,7 +204,7 @@ class CuckooFilter {
   size_t SizeInBytes() const { return table->SizeInBytes(); }
 
   // LoadFactor returns load factor of the CF
-  double LoadFactor() const { return 1.0 * Size() / table->SizeTable(); }
+  double LoadFactor() const { return 1.0 * Size() / max_items; }
 
   // BitsPerItem returns bits per item
   double BitsPerItem() const { return 8.0 * table->SizeInBytes() / Size(); }
@@ -221,19 +221,36 @@ class CuckooFilter {
   // the table
   Status DeleteItemFromBucketDirect(const uint32_t& i,
                                     const uint32_t& fingerprint) {
-    return table->DeleteItemFromBucket(i, fingerprint) ? Ok : NotFound;
+    if (table->DeleteItemFromBucket(i, fingerprint)) {
+      num_items--;
+      return Ok;
+    }
+    return NotFound;
   }
 
   // AddToBucket adds an item ta a bucket at index i
-  Status AddToBucket(const uint32_t& i, const item_type& item) {
-    if (table->InsertItemToBucket(i, item, false, 0)) return Ok;
-
+  Status AddToBucket(const uint32_t& i, const uint32_t& item) {
+    bool kickout = false;
+    uint32_t old_fingerprint = 0;
+    if (table->InsertItemToBucket(i, item, kickout, old_fingerprint)) {
+      num_items++;
+      return Ok;
+    }
     return NotEnoughSpace;
   }
 
   // GetVictim returns an victim
   std::shared_ptr<Victim> GetVictim() {
     return std::make_shared<Victim>(victim);
+  }
+
+  Status DeleteVictim(const uint32_t& i, const uint32_t& fingerprint) {
+    if (victim.used && victim.fingerprint == fingerprint && victim.index == i) {
+      num_items--;
+      victim.used = false;
+      return Ok;
+    }
+    return NotFound;
   }
 
   string Info() {

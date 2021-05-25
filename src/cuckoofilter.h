@@ -78,7 +78,7 @@ class CuckooFilter {
     size_t k_items_per_bucket = 4;
     item_mask = (1ULL << bits_per_item) - 1;
 
-    // zaokruzi na sljedecu potenciju broja 2
+    // Number of buckets needs to be power of 2 so here next power of 2
     size_t num_buckets =
         max_items < k_items_per_bucket
             ? 1
@@ -139,7 +139,8 @@ class CuckooFilter {
 
       current_index = GetIndex2(current_index, current_fingerprint);
     }
-    // Koristim victima.. tablica je puna
+
+    // If we use victime, CF is full
     victim.used = true;
     victim.index = current_index;
     victim.fingerprint = current_fingerprint;
@@ -244,6 +245,7 @@ class CuckooFilter {
     return std::make_shared<Victim>(victim);
   }
 
+  // DeleteVictim will try to match and then delete the victim
   Status DeleteVictim(const uint32_t& i, const uint32_t& fingerprint) {
     if (victim.used && victim.fingerprint == fingerprint && victim.index == i) {
       num_items--;

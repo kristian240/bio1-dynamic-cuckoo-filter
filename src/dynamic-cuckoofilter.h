@@ -58,7 +58,6 @@ class DynamicCuckooFilter {
   // destructor
   virtual ~DynamicCuckooFilter() = default;
 
-  // Ne moze se nikad desiti da mi vrati notEnoughSpace
   // Add method will first check if there is room in the currCF for an item to
   // be added. If load factor threshold if passed, new CF will be created.
   // Next, item will be added to the currCF. After adding, we need to check if

@@ -229,5 +229,17 @@ class DynamicCuckooFilter {
 
     return Ok;
   }
+
+  string Info() {
+    std::stringstream ss;
+
+    ss << "DynamicCuckooFilter Status:" << std::endl;
+
+    for (DynamicCuckooFilterNode n = head_cf_node; n != nullptr; n = n->next) {
+      ss << n->cf->Info();
+    }
+
+    return ss.str();
+  }
 };
 }  // namespace cuckoofilterbio1

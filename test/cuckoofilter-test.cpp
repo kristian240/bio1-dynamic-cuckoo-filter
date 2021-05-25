@@ -6,18 +6,6 @@
 #include <memory>
 using namespace cuckoofilterbio1;
 
-std::string generateKMer(size_t k) {
-  static const char bases[] = "ACGT";
-
-  std::string k_mer;
-
-  k_mer.reserve(k);
-
-  for (int i = 0; i < k; ++i) k_mer += bases[rand() % (sizeof(bases) - 1)];
-
-  return k_mer;
-}
-
 void test_max_item() {
   std::unique_ptr<CuckooFilter<uint32_t>> cf =
       std::make_unique<CuckooFilter<uint32_t>>(10);

@@ -13,7 +13,7 @@ std::string str((std::istreambuf_iterator<char>(ecoli)),
     // std::cout << str << std::endl;
     ecoli1 << str; */
 
-void Test1(int N) {
+void test1(int N) {
   std::cout << "TEST1" << std::endl;
   std::set<std::string> positive_set;
   std::ifstream ecoli1("ecoli1.txt");

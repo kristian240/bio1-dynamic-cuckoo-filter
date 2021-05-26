@@ -5,6 +5,7 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "../src/cuckoofilter.h"
 #include "generators.h"
@@ -31,7 +32,7 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   uint64_t start_time = NowNanos();
 
   // insert all items from positive_set
-  for (std::string &item : positive_set) {
+  for (std::string item : positive_set) {
     cf->Add(item);
   }
 
@@ -51,7 +52,7 @@ void testCuckooFilter(std::set<std::string> &positive_set,
 
   size_t found_count = 0;
 
-  for (std::string &item : negative_set) {
+  for (std::string item : negative_set) {
     if (cf->Contain(item) == Ok) {
       found_count++;
     }

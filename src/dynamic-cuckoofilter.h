@@ -229,14 +229,39 @@ class DynamicCuckooFilter {
 
     return Ok;
   }
+  vector<size_t> const SizeOfEachCF() {
+    vector<size_t> sizes;
+    for (std::shared_ptr<DynamicCuckooFilterNode> n = head_cf_node;
+         n != nullptr; n = n->next) {
+      sizes.push_back(n->cf->Size());
+    }
+    return sizes;
+  }
+  size_t TotalSize() {
+    size_t sizes = 0;
+    for (std::shared_ptr<DynamicCuckooFilterNode> n = head_cf_node;
+         n != nullptr; n = n->next) {
+      sizes += n->cf->Size();
+    }
+    return sizes;
+  }
+  size_t TotalSizeInBytes() const {
+    size_t sizes = 0;
+    for (std::shared_ptr<DynamicCuckooFilterNode> n = head_cf_node;
+         n != nullptr; n = n->next) {
+      sizes += n->cf->SizeInBytes();
+    }
+    return sizes;
+  }
 
   string Info() {
     std::stringstream ss;
 
     ss << "DynamicCuckooFilter Status:" << std::endl;
-
-    for (DynamicCuckooFilterNode n = head_cf_node; n != nullptr; n = n->next) {
-      ss << n->cf->Info();
+    int br = 1;
+    for (std::shared_ptr<DynamicCuckooFilterNode> n = head_cf_node;
+         n != nullptr; n = n->next) {
+      ss << "CuckooFilter " << br++ << "\n" << n->cf->Info();
     }
 
     return ss.str();

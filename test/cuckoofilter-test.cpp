@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <memory>
+
+#include "generators.h"
 using namespace cuckoofilterbio1;
 
 void test_max_item() {

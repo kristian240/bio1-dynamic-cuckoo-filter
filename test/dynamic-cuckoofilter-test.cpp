@@ -8,19 +8,9 @@
 #include <string>
 #include <vector>
 
+#include "generators.h"
+
 using namespace cuckoofilterbio1;
-
-std::string generateKMer(size_t k) {
-  static const char bases[] = "ACGT";
-
-  std::string k_mer;
-
-  k_mer.reserve(k);
-
-  for (int i = 0; i < k; ++i) k_mer += bases[rand() % (sizeof(bases) - 1)];
-
-  return k_mer;
-}
 
 void test_construct_DCF() {
   std::unique_ptr<DynamicCuckooFilter<>> dcf =
@@ -94,8 +84,10 @@ void test_compact_DCF() {
   }
   std::for_each(s.begin(), s.end(),
                 [&](std::string &str) { assert(Ok == dcf->Delete(str)); });
-
+  vector<size_t> sizes = dcf->SizeOfEachCF();
   assert(Ok == dcf->Compact());
+  vector<size_t> sizes2 = dcf->SizeOfEachCF();
+  assert(sizes != sizes2);
   assert(Ok == dcf->Add(generateKMer(20)));
   std::cout << "PASS test_compact_DCF" << std::endl;
 }

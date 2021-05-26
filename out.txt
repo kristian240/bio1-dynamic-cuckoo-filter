@@ -1,0 +1,99 @@
+TEST1 - (kmers from e.coli genome) - subset size: 10
+CuckooFilter
+Added items: 10 / 10 (100%)
+Total time to add 10 items: 10500ns (avg. 1050ns/item)
+Total bytes used: 16 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 20
+CuckooFilter
+Added items: 20 / 20 (100%)
+Total time to add 20 items: 30600ns (avg. 1530ns/item)
+Total bytes used: 32 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 71700ns (avg. 1434ns/item)
+Total bytes used: 64 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 100
+CuckooFilter
+Added items: 100 / 100 (100%)
+Total time to add 100 items: 119200ns (avg. 1192ns/item)
+Total bytes used: 128 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 500
+CuckooFilter
+Added items: 447 / 500 (89.4%)
+Total time to add 500 items: 1095100ns (avg. 2190ns/item)
+Total bytes used: 512 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 1000
+CuckooFilter
+Added items: 497 / 1000 (49.7%)
+Total time to add 1000 items: 693900ns (avg. 693ns/item)
+Total bytes used: 1024 bytes
+
+TEST2 - (kmers with modification from e.coli genome) - 10
+CuckooFilter
+Added items: 10 / 10 (100%)
+Total time to add 10 items: 16100ns (avg. 1610ns/item)
+Total bytes used: 16 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 20
+CuckooFilter
+Added items: 20 / 20 (100%)
+Total time to add 20 items: 31400ns (avg. 1570ns/item)
+Total bytes used: 32 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 98900ns (avg. 1978ns/item)
+Total bytes used: 64 bytes
+False positive rate: 20%
+
+TEST2 - (kmers with modification from e.coli genome) - 100
+CuckooFilter
+Added items: 100 / 100 (100%)
+Total time to add 100 items: 109100ns (avg. 1091ns/item)
+Total bytes used: 128 bytes
+False positive rate: 41%
+
+TEST2 - (kmers with modification from e.coli genome) - 500
+CuckooFilter
+Added items: 420 / 500 (84%)
+Total time to add 500 items: 799400ns (avg. 1598ns/item)
+Total bytes used: 512 bytes
+False positive rate: 76.6%
+
+TEST2 - (kmers with modification from e.coli genome) - 1000
+CuckooFilter
+Added items: 657 / 1000 (65.7%)
+Total time to add 1000 items: 1045000ns (avg. 1045ns/item)
+Total bytes used: 1024 bytes
+False positive rate: 93.2%
+
+TEST3 - (random kmers) - 10
+CuckooFilter
+Added items: 10 / 10 (100%)
+Total time to add 10 items: 9100ns (avg. 910ns/item)
+Total bytes used: 16 bytes
+False positive rate: 10%
+
+TEST3 - (random kmers) - 20
+CuckooFilter
+Added items: 20 / 20 (100%)
+Total time to add 20 items: 13500ns (avg. 675ns/item)
+Total bytes used: 32 bytes
+False positive rate: 5%
+
+TEST3 - (random kmers) - 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 29000ns (avg. 580ns/item)
+Total bytes used: 64 bytes
+False positive rate: 18%
+

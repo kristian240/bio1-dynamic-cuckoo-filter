@@ -68,6 +68,9 @@ void testCuckooFilter(std::set<std::string> &positive_set,
 }
 
 void test1(int N) {
+  std::cerr << "Running: TEST1 - (kmers from e.coli genome) - subset size: "
+            << N << std::endl;
+
   std::cout << "TEST1 - (kmers from e.coli genome) - subset size: " << N
             << std::endl;
 
@@ -107,6 +110,10 @@ void test1(int N) {
 }
 
 void test2(int N) {
+  std::cerr
+      << "Running: TEST2 - (kmers with modification from e.coli genome) - " << N
+      << std::endl;
+
   std::cout << "TEST2 - (kmers with modification from e.coli genome) - " << N
             << std::endl;
 
@@ -162,6 +169,7 @@ void test2(int N) {
 }
 
 void test3(int N) {
+  std::cerr << "Running: TEST3 - (random kmers) - " << N << std::endl;
   std::cout << "TEST3 - (random kmers) - " << N << std::endl;
 
   std::set<std::string> positive_set;

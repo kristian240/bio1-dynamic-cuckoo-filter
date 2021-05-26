@@ -11,13 +11,6 @@
 
 using namespace cuckoofilterbio1;
 
-/*
-std::string str((std::istreambuf_iterator<char>(ecoli)),
-                    std::istreambuf_iterator<char>());
-    str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
-    // std::cout << str << std::endl;
-    ecoli1 << str; */
-
 std::string bases = "ACGT";
 int k_options[4] = {50, 100, 200, 500};
 
@@ -153,9 +146,9 @@ void test2(int N) {
     if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
 
-  ecoli1.close();
-
   testCuckooFilter(positive_set, negative_set);
+
+  ecoli1.close();
 }
 
 void test3(int N) {
@@ -193,6 +186,8 @@ void test3(int N) {
     if (i == 1) std::cout << "File failed to open!" << std::endl;
     if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
+
+  testCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
 }

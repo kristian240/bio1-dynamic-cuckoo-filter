@@ -45,9 +45,16 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   uint64_t total_add_time = NowNanos() - start_time;
   double avg_add_time = total_add_time / cf->positive_set.size();
 
+  std::cout << "Added items: " << cf->Size() << " / " << positive_set.size()
+            << " (" << (cf->Size() * 1.) / positive_set.size() << "%)"
+            << std::endl;
   std::cout << "Total time to add " << positive_set.size()
             << " items: " << total_add_time << "ns (avg. " << avg_add_time
-            << "ns/item)";
+            << "ns/item)" << std::endl;
+
+  uint64_t used_bytes = cf->SizeInBytes();
+
+  std::cout << "Total bytes used: " << used_bytes << " bytes" << std::endl;
 
   size_t found_count = 0;
 
@@ -62,7 +69,8 @@ void testCuckooFilter(std::set<std::string> &positive_set,
 }
 
 void test1(int N) {
-  std::cout << "TEST1" << std::endl;
+  std::cout << "TEST1 - (kmers from e.coli genome) - subset size: " << N
+            << std::endl;
 
   std::set<std::string> positive_set;
   std::set<std::string> negative_set;
@@ -98,7 +106,8 @@ void test1(int N) {
 }
 
 void test2(int N) {
-  std::cout << "TEST2" << std::endl;
+  std::cout << "TEST2 - (kmers with modification from e.coli genome) - " << N
+            << std::endl;
 
   std::set<std::string> positive_set;
   std::set<std::string> negative_set;
@@ -144,13 +153,13 @@ void test2(int N) {
     if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
 
-  testCuckooFilter(positive_set, negative_set);
-
   ecoli1.close();
+
+  testCuckooFilter(positive_set, negative_set);
 }
 
 void test3(int N) {
-  std::cout << "TEST3" << std::endl;
+  std::cout << "TEST3 - (random kmers) - " << N << std::endl;
 
   std::set<std::string> positive_set;
   std::set<std::string> negative_set;
@@ -164,14 +173,10 @@ void test3(int N) {
     std::string genom;
     if (!getline(ecoli1, genom)) throw 2;
 
-    std::string kmer;
-
     while (positive_set.size() < N || negative_set.size() < N) {
-      int random_variable = std::rand();
-
-      // k = k_options[random_variable % 4];
       int k = 15;
-      kmer.clear();
+
+      std::string kmer;
       kmer.reserve(k);
 
       for (int i = 0; i < k; ++i) {

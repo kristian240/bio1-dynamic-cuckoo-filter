@@ -25,7 +25,7 @@ uint64_t NowNanos() {
 // negative_set contains items that shouldn't be in CF
 void testCuckooFilter(std::set<std::string> &positive_set,
                       std::set<std::string> &negative_set) {
-  std::unique_ptr<CuckooFilter<uint16_t>> cf =
+  std::unique_ptr<CuckooFilter<>> cf =
       std::make_unique<CuckooFilter<>>(positive_set.size());
   std::cout << "CuckooFilter" << std::endl;
 
@@ -37,10 +37,10 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   }
 
   uint64_t total_add_time = NowNanos() - start_time;
-  double avg_add_time = total_add_time / cf->positive_set.size();
+  double avg_add_time = total_add_time / positive_set.size();
 
   std::cout << "Added items: " << cf->Size() << " / " << positive_set.size()
-            << " (" << (cf->Size() * 1.) / positive_set.size() << "%)"
+            << " (" << (cf->Size() * 100.) / positive_set.size() << "%)"
             << std::endl;
   std::cout << "Total time to add " << positive_set.size()
             << " items: " << total_add_time << "ns (avg. " << avg_add_time
@@ -52,14 +52,18 @@ void testCuckooFilter(std::set<std::string> &positive_set,
 
   size_t found_count = 0;
 
+  if (negative_set.size() == 0) {
+    return;
+  }
+
   for (std::string item : negative_set) {
     if (cf->Contain(item) == Ok) {
       found_count++;
     }
   }
 
-  double false_positive_rate = found_count / negative_set.size() * 100;
-  std::cout << "False positive rate: " << false_positive_rate << "%";
+  double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
+  std::cout << "False positive rate: " << false_positive_rate << "%" << std::endl;
 }
 
 void test1(int N) {
@@ -147,9 +151,9 @@ void test2(int N) {
     if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
 
-  testCuckooFilter(positive_set, negative_set);
-
   ecoli1.close();
+
+  testCuckooFilter(positive_set, negative_set);
 }
 
 void test3(int N) {
@@ -188,13 +192,14 @@ void test3(int N) {
     if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
 
-  testCuckooFilter(positive_set, negative_set);
-
   ecoli1.close();
+
+  testCuckooFilter(positive_set, negative_set);
 }
 
 int main(int argc, const char *argv[]) {
   std::srand(std::time(nullptr));
+
   test1(100);
   test2(100);
   test3(10);

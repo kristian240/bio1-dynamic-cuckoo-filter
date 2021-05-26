@@ -63,7 +63,8 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   }
 
   double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
-  std::cout << "False positive rate: " << false_positive_rate << "%" << std::endl;
+  std::cout << "False positive rate: " << false_positive_rate << "%"
+            << std::endl;
 }
 
 void test1(int N) {
@@ -101,6 +102,8 @@ void test1(int N) {
   testCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
+
+  std::cout << std::endl;
 }
 
 void test2(int N) {
@@ -154,6 +157,8 @@ void test2(int N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
+
+  std::cout << std::endl;
 }
 
 void test3(int N) {
@@ -195,14 +200,18 @@ void test3(int N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
+
+  std::cout << std::endl;
 }
 
 int main(int argc, const char *argv[]) {
   std::srand(std::time(nullptr));
 
-  test1(100);
-  test2(100);
-  test3(10);
+  for (const int N : {10, 20, 50, 100, 500, 1000}) test1(N);
+
+  for (const int N : {10, 20, 50, 100, 500, 1000}) test2(N);
+
+  for (const int N : {10, 20, 50}) test3(N);
 
   return 0;
 }

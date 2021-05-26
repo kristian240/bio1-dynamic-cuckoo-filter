@@ -1,11 +1,16 @@
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iostream>
 
+#include "../src/cuckoofilter.h"
 #include "generators.h"
+
+using namespace cuckoofilterbio1;
+
 /*
 std::string str((std::istreambuf_iterator<char>(ecoli)),
                     std::istreambuf_iterator<char>());
@@ -16,10 +21,51 @@ std::string str((std::istreambuf_iterator<char>(ecoli)),
 std::string bases = "ACGT";
 int k_options[4] = {50, 100, 200, 500};
 
+uint64_t NowNanos() {
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+
+// positive_set contains items that should be in CF
+// negative_set contains items that shouldn't be in CF
+void testCuckooFilter(std::set<std::string> &positive_set,
+                      std::set<std::string> &negative_set) {
+  std::unique_ptr<CuckooFilter<uint16_t>> cf =
+      std::make_unique<CuckooFilter<>>(positive_set.size());
+  std::cout << "CuckooFilter" << std::endl;
+
+  uint64_t start_time = NowNanos();
+
+  // insert all items from positive_set
+  for (std::string &item : positive_set) {
+    cf->Add(item);
+  }
+
+  uint64_t total_add_time = NowNanos() - start_time;
+  double avg_add_time = total_add_time / cf->positive_set.size();
+
+  std::cout << "Total time to add " << positive_set.size()
+            << " items: " << total_add_time << "ns (avg. " << avg_add_time
+            << "ns/item)";
+
+  size_t found_count = 0;
+
+  for (std::string &item : negative_set) {
+    if (cf->Contain(item) == Ok) {
+      found_count++;
+    }
+  }
+
+  double false_positive_rate = found_count / negative_set.size() * 100;
+  std::cout << "False positive rate: " << false_positive_rate << "%";
+}
+
 void test1(int N) {
   std::cout << "TEST1" << std::endl;
 
   std::set<std::string> positive_set;
+  std::set<std::string> negative_set;
 
   std::ifstream ecoli1("ecoli1.txt");
 
@@ -42,9 +88,11 @@ void test1(int N) {
       positive_set.insert(kmer);
     }
   } catch (int i) {
-    if (i == 1) std::cout << "Datoteka se nije otvorila " << std::endl;
-    if (i == 2) std::cout << "Nisi u string ubacio genom" << std::endl;
+    if (i == 1) std::cout << "File failed to open!" << std::endl;
+    if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
+
+  testCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
 }
@@ -92,9 +140,11 @@ void test2(int N) {
     }
 
   } catch (int i) {
-    if (i == 1) std::cout << "Datoteka se nije otvorila " << std::endl;
-    if (i == 2) std::cout << "Nisi u string ubacio genom" << std::endl;
+    if (i == 1) std::cout << "File failed to open!" << std::endl;
+    if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
+
+  testCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
 }
@@ -135,14 +185,14 @@ void test3(int N) {
       }
     }
   } catch (int i) {
-    if (i == 1) std::cout << "Datoteka se nije otvorila " << std::endl;
-    if (i == 2) std::cout << "Nisi u string ubacio genom" << std::endl;
+    if (i == 1) std::cout << "File failed to open!" << std::endl;
+    if (i == 2) std::cout << "File does not contain any data" << std::endl;
   }
 
   ecoli1.close();
 }
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char *argv[]) {
   std::srand(std::time(nullptr));
   test1(100);
   test2(100);

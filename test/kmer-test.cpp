@@ -78,7 +78,8 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   }
 
   double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
-  std::cout << "False positive rate: " << false_positive_rate << "%"
+  std::cout << "False positive rate: (" << found_count << "/"
+            << negative_set.size() << ") " << false_positive_rate << "%"
             << std::endl;
 }
 
@@ -134,8 +135,10 @@ void testDynamicCuckooFilter(std::set<std::string> &positive_set,
       }
     }
 
-    double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
-    std::cout << "False positive rate: " << false_positive_rate << "%"
+    long double false_positive_rate =
+        (found_count * 1.) / negative_set.size() * 100;
+    std::cout << "False positive rate: (" << found_count << "/"
+              << negative_set.size() << ") " << false_positive_rate << "%"
               << std::endl;
   }
 

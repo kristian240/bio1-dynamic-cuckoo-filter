@@ -46,15 +46,12 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   std::cout << "Added items: " << cf->Size() << " / " << positive_set.size()
             << " (" << (cf->Size() * 100.) / positive_set.size() << "%)"
             << std::endl;
-  std::cout << "Total time to add " << positive_set.size()
+  std::cout << "Total time to add " << cf->Size()
             << " items: " << total_add_time << "ns (avg. " << avg_add_time
             << "ns/item)" << std::endl;
 
-  uint64_t used_bytes = cf->SizeInBytes();
-
   start_time = NowNanos();
 
-  // insert all items from positive_set
   for (std::string item : positive_set) {
     if (cf->Contain(item) == NotFound) {
       break;
@@ -64,9 +61,11 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   uint64_t total_contain_time = NowNanos() - start_time;
   double avg_contain_time = total_contain_time / cf->Size();
 
-  std::cout << "Total time to find " << positive_set.size()
+  std::cout << "Total time to find " << cf->Size()
             << " items: " << total_contain_time << "ns (avg. "
             << avg_contain_time << "ns/item)" << std::endl;
+
+  uint64_t used_bytes = cf->SizeInBytes();
 
   std::cout << "Total bytes used: " << used_bytes << " bytes" << std::endl;
 

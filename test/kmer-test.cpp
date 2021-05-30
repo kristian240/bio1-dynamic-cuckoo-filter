@@ -25,8 +25,8 @@ uint64_t NowNanos() {
 // negative_set contains items that shouldn't be in CF
 void testCuckooFilter(std::set<std::string> &positive_set,
                       std::set<std::string> &negative_set) {
-  std::unique_ptr<CuckooFilter<>> cf =
-      std::make_unique<CuckooFilter<>>(positive_set.size());
+  std::unique_ptr<CuckooFilter<uint32_t>> cf =
+      std::make_unique<CuckooFilter<uint32_t>>(positive_set.size());
   std::cout << "CuckooFilter" << std::endl;
 
   uint64_t start_time = NowNanos();
@@ -37,24 +37,37 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   }
 
   uint64_t total_add_time = NowNanos() - start_time;
-  double avg_add_time = total_add_time / positive_set.size();
+  double avg_add_time = total_add_time / cf->Size();
 
   std::cout << "Added items: " << cf->Size() << " / " << positive_set.size()
             << " (" << (cf->Size() * 100.) / positive_set.size() << "%)"
             << std::endl;
-  std::cout << "Total time to add " << positive_set.size()
+  std::cout << "Total time to add " <<  cf->Size()
             << " items: " << total_add_time << "ns (avg. " << avg_add_time
             << "ns/item)" << std::endl;
+
+  for (std::string item : positive_set) {
+    if (cf->Contain(item) == NotFound) {
+      break;
+    }
+  }
+
+  uint64_t total_contain_time = NowNanos() - start_time;
+  double avg_contain_time = total_contain_time / cf->Size();
+
+  std::cout << "Total time to find " <<  cf->Size()
+            << " items: " << total_contain_time << "ns (avg. "
+            << avg_contain_time << "ns/item)" << std::endl;
 
   uint64_t used_bytes = cf->SizeInBytes();
 
   std::cout << "Total bytes used: " << used_bytes << " bytes" << std::endl;
 
-  size_t found_count = 0;
-
   if (negative_set.size() == 0) {
     return;
   }
+
+  size_t found_count = 0;
 
   for (std::string item : negative_set) {
     if (cf->Contain(item) == Ok) {
@@ -67,7 +80,7 @@ void testCuckooFilter(std::set<std::string> &positive_set,
             << std::endl;
 }
 
-void test1(int N) {
+void test1(size_t N) {
   std::cerr << "Running: TEST1 - (kmers from e.coli genome) - subset size: "
             << N << std::endl;
 
@@ -92,7 +105,7 @@ void test1(int N) {
       int k = k_options[random_index % 4];
       int pos = random_index % genom_len;
 
-      if (pos + k > genom_len) continue;
+      if ((size_t)(pos + k) > genom_len) continue;
 
       std::string kmer = genom.substr(pos, k);
       positive_set.insert(kmer);
@@ -109,7 +122,7 @@ void test1(int N) {
   std::cout << std::endl;
 }
 
-void test2(int N) {
+void test2(size_t N) {
   std::cerr
       << "Running: TEST2 - (kmers with modification from e.coli genome) - " << N
       << std::endl;
@@ -135,7 +148,7 @@ void test2(int N) {
       int k = k_options[random_index % 4];
       int pos = random_index % genom_len;
 
-      if (pos + k > genom_len) continue;
+      if ((size_t)(pos + k) > genom_len) continue;
 
       std::string kmer = genom.substr(pos, k);
       std::string kmer_wrong = kmer;
@@ -168,7 +181,7 @@ void test2(int N) {
   std::cout << std::endl;
 }
 
-void test3(int N) {
+void test3(size_t N) {
   std::cerr << "Running: TEST3 - (random kmers) - " << N << std::endl;
   std::cout << "TEST3 - (random kmers) - " << N << std::endl;
 
@@ -215,11 +228,11 @@ void test3(int N) {
 int main(int argc, const char *argv[]) {
   std::srand(std::time(nullptr));
 
-  for (const int N : {10, 20, 50, 100, 500, 1000}) test1(N);
+  for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test1(N);
 
-  for (const int N : {10, 20, 50, 100, 500, 1000}) test2(N);
+  for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test2(N);
 
-  for (const int N : {10, 20, 50}) test3(N);
+  for (const size_t N : {10, 20, 50}) test3(N);
 
   return 0;
 }

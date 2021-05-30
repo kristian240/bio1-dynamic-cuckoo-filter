@@ -137,15 +137,15 @@ void testDynamicCuckooFilter(std::set<std::string> &positive_set,
     double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
     std::cout << "False positive rate: " << false_positive_rate << "%"
               << std::endl;
+  }
 
-    int counter = 0;
-    for (std::string item : positive_set) {
-      dcf->Delete(item);
-
-      if (++counter >= positive_set.size()) {
-        break;
-      }
+  int counter = 0;
+  for (std::string item : positive_set) {
+    if (counter++ % 2 == 0) {
+      continue;
     }
+
+    dcf->Delete(item);
   }
 
   std::cout << "Size of each CF before compact: ";
@@ -164,7 +164,7 @@ void testDynamicCuckooFilter(std::set<std::string> &positive_set,
   }
   std::cout << std::endl;
 
-  std::cout << "Time used for compact: " << compact_time << std::endl;
+  std::cout << "Time used for compact: " << compact_time << "ns" << std::endl;
 }
 
 void test1(size_t N) {
@@ -315,7 +315,7 @@ void test3(size_t N) {
 int main(int argc, const char *argv[]) {
   std::srand(std::time(nullptr));
 
-  for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test1(N);
+  for (const size_t N : {50, 100, 500, 1000, 10000, 100000, 1000000}) test1(N);
 
   for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test2(N);
 

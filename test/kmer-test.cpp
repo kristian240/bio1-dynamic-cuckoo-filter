@@ -33,7 +33,9 @@ void testCuckooFilter(std::set<std::string> &positive_set,
 
   // insert all items from positive_set
   for (std::string item : positive_set) {
-    cf->Add(item);
+    if (cf->Add(item) == NotEnoughSpace) {
+      break;
+    }
   }
 
   uint64_t total_add_time = NowNanos() - start_time;
@@ -93,7 +95,9 @@ void testDynamicCuckooFilter(std::set<std::string> &positive_set,
 
   // insert all items from positive_set
   for (std::string item : positive_set) {
-    dcf->Add(item);
+    if (dcf->Add(item) == NotEnoughSpace) {
+      break;
+    }
   }
 
   uint64_t total_add_time = NowNanos() - start_time;
@@ -321,11 +325,11 @@ void test3(size_t N) {
 int main(int argc, const char *argv[]) {
   std::srand(987654321);
 
-  for (const size_t N : {50, 100, 500, 1000, 10000, 100000, 1000000}) test1(N);
+  for (const size_t N : {64, 128, 512, 1024, 16384, 131072, 1048576}) test1(N);
 
-  for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test2(N);
+  // for (const size_t N : {50, 100, 500, 1000, 10000, 100000}) test2(N);
 
-  for (const size_t N : {10, 20, 50}) test3(N);
+  // for (const size_t N : {10, 20, 50}) test3(N);
 
   return 0;
 }

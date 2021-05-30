@@ -7,7 +7,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../src/cuckoofilter.h"
+#include "../src/dynamic-cuckoofilter.h"
 #include "generators.h"
 
 using namespace cuckoofilterbio1;
@@ -42,9 +42,11 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   std::cout << "Added items: " << cf->Size() << " / " << positive_set.size()
             << " (" << (cf->Size() * 100.) / positive_set.size() << "%)"
             << std::endl;
-  std::cout << "Total time to add " <<  cf->Size()
+  std::cout << "Total time to add " << cf->Size()
             << " items: " << total_add_time << "ns (avg. " << avg_add_time
             << "ns/item)" << std::endl;
+
+  start_time = NowNanos();
 
   for (std::string item : positive_set) {
     if (cf->Contain(item) == NotFound) {
@@ -55,7 +57,7 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   uint64_t total_contain_time = NowNanos() - start_time;
   double avg_contain_time = total_contain_time / cf->Size();
 
-  std::cout << "Total time to find " <<  cf->Size()
+  std::cout << "Total time to find " << cf->Size()
             << " items: " << total_contain_time << "ns (avg. "
             << avg_contain_time << "ns/item)" << std::endl;
 
@@ -78,6 +80,91 @@ void testCuckooFilter(std::set<std::string> &positive_set,
   double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
   std::cout << "False positive rate: " << false_positive_rate << "%"
             << std::endl;
+}
+
+void testDynamicCuckooFilter(std::set<std::string> &positive_set,
+                             std::set<std::string> &negative_set) {
+  std::unique_ptr<DynamicCuckooFilter<uint32_t>> dcf =
+      std::make_unique<DynamicCuckooFilter<uint32_t>>(positive_set.size() / 3);
+  std::cout << "DynamicCuckooFilter" << std::endl;
+
+  uint64_t start_time = NowNanos();
+
+  // insert all items from positive_set
+  for (std::string item : positive_set) {
+    dcf->Add(item);
+  }
+
+  uint64_t total_add_time = NowNanos() - start_time;
+  double avg_add_time = total_add_time / dcf->TotalSize();
+
+  std::cout << "Added items: " << dcf->TotalSize() << " / "
+            << positive_set.size() << " ("
+            << (dcf->TotalSize() * 100.) / positive_set.size() << "%)"
+            << std::endl;
+  std::cout << "Total time to add " << dcf->TotalSize()
+            << " items: " << total_add_time << "ns (avg. " << avg_add_time
+            << "ns/item)" << std::endl;
+
+  start_time = NowNanos();
+
+  for (std::string item : positive_set) {
+    if (dcf->Contains(item) == NotFound) {
+      break;
+    }
+  }
+
+  uint64_t total_contain_time = NowNanos() - start_time;
+  double avg_contain_time = total_contain_time / dcf->TotalSize();
+
+  std::cout << "Total time to find " << dcf->TotalSize()
+            << " items: " << total_contain_time << "ns (avg. "
+            << avg_contain_time << "ns/item)" << std::endl;
+
+  uint64_t used_bytes = dcf->TotalSizeInBytes();
+
+  std::cout << "Total bytes used: " << used_bytes << " bytes" << std::endl;
+
+  if (negative_set.size() > 0) {
+    size_t found_count = 0;
+
+    for (std::string item : negative_set) {
+      if (dcf->Contains(item) == Ok) {
+        found_count++;
+      }
+    }
+
+    double false_positive_rate = (found_count * 1.) / negative_set.size() * 100;
+    std::cout << "False positive rate: " << false_positive_rate << "%"
+              << std::endl;
+
+    int counter = 0;
+    for (std::string item : positive_set) {
+      dcf->Delete(item);
+
+      if (++counter >= positive_set.size()) {
+        break;
+      }
+    }
+  }
+
+  std::cout << "Size of each CF before compact: ";
+  for (size_t size : dcf->SizeOfEachCF()) {
+    std::cout << size << " ";
+  }
+  std::cout << std::endl;
+
+  start_time = NowNanos();
+  dcf->Compact();
+  uint64_t compact_time = NowNanos() - start_time;
+
+  std::cout << "Size of each CF after compact: ";
+  for (size_t size : dcf->SizeOfEachCF()) {
+    std::cout << size << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Time used for compact: " << compact_time << std::endl;
 }
 
 void test1(size_t N) {

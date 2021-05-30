@@ -232,7 +232,7 @@ void test3(size_t N) {
 }
 
 int main(int argc, const char *argv[]) {
-  std::srand(std::time(nullptr));
+  std::srand(987654321);
 
   for (const size_t N : {50, 100, 500, 1000, 10000, 100000, 1000000}) test1(N);
 

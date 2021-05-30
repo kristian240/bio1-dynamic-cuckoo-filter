@@ -203,6 +203,7 @@ void test1(size_t N) {
   }
 
   testCuckooFilter(positive_set, negative_set);
+  testDynamicCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
 
@@ -264,6 +265,7 @@ void test2(size_t N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
+  testDynamicCuckooFilter(positive_set, negative_set);
 
   std::cout << std::endl;
 }
@@ -308,12 +310,13 @@ void test3(size_t N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
+  testDynamicCuckooFilter(positive_set, negative_set);
 
   std::cout << std::endl;
 }
 
 int main(int argc, const char *argv[]) {
-  std::srand(std::time(nullptr));
+  std::srand(987654321);
 
   for (const size_t N : {50, 100, 500, 1000, 10000, 100000, 1000000}) test1(N);
 

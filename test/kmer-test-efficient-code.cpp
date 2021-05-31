@@ -6,11 +6,13 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <set>
+#include <string>
 
-#include "../src/dynamic-cuckoofilter.h"
-#include "generators.h"
+#include "../cuckoofilter/cuckoofilter/src/cuckoofilter.h"
+#include "../src/hash.h"
 
-using namespace cuckoofilterbio1;
+using namespace cuckoofilter;
 
 std::string bases = "ACGT";
 int k_options[4] = {50, 100, 200, 500};
@@ -25,8 +27,8 @@ uint64_t NowNanos() {
 // negative_set contains items that shouldn't be in CF
 void testCuckooFilter(std::set<std::string> &positive_set,
                       std::set<std::string> &negative_set) {
-  std::unique_ptr<CuckooFilter<uint32_t>> cf =
-      std::make_unique<CuckooFilter<uint32_t>>(positive_set.size());
+  std::unique_ptr<CuckooFilter<std::string, 32>> cf =
+      std::make_unique<CuckooFilter<std::string, 32>>(positive_set.size());
   std::cout << "CuckooFilter" << std::endl;
 
   uint64_t start_time = NowNanos();
@@ -85,95 +87,6 @@ void testCuckooFilter(std::set<std::string> &positive_set,
             << std::endl;
 }
 
-void testDynamicCuckooFilter(std::set<std::string> &positive_set,
-                             std::set<std::string> &negative_set) {
-  std::unique_ptr<DynamicCuckooFilter<uint32_t>> dcf =
-      std::make_unique<DynamicCuckooFilter<uint32_t>>(positive_set.size() / 3);
-  std::cout << "DynamicCuckooFilter" << std::endl;
-
-  uint64_t start_time = NowNanos();
-
-  // insert all items from positive_set
-  for (std::string item : positive_set) {
-    if (dcf->Add(item) == NotEnoughSpace) {
-      break;
-    }
-  }
-
-  uint64_t total_add_time = NowNanos() - start_time;
-  double avg_add_time = total_add_time / dcf->TotalSize();
-
-  std::cout << "Added items: " << dcf->TotalSize() << " / "
-            << positive_set.size() << " ("
-            << (dcf->TotalSize() * 100.) / positive_set.size() << "%)"
-            << std::endl;
-  std::cout << "Total time to add " << dcf->TotalSize()
-            << " items: " << total_add_time << "ns (avg. " << avg_add_time
-            << "ns/item)" << std::endl;
-
-  start_time = NowNanos();
-
-  for (std::string item : positive_set) {
-    if (dcf->Contains(item) == NotFound) {
-      break;
-    }
-  }
-
-  uint64_t total_contain_time = NowNanos() - start_time;
-  double avg_contain_time = total_contain_time / dcf->TotalSize();
-
-  std::cout << "Total time to find " << dcf->TotalSize()
-            << " items: " << total_contain_time << "ns (avg. "
-            << avg_contain_time << "ns/item)" << std::endl;
-
-  uint64_t used_bytes = dcf->TotalSizeInBytes();
-
-  std::cout << "Total bytes used: " << used_bytes << " bytes" << std::endl;
-
-  if (negative_set.size() > 0) {
-    size_t found_count = 0;
-
-    for (std::string item : negative_set) {
-      if (dcf->Contains(item) == Ok) {
-        found_count++;
-      }
-    }
-
-    long double false_positive_rate =
-        (found_count * 1.) / negative_set.size() * 100;
-    std::cout << "False positive rate: (" << found_count << "/"
-              << negative_set.size() << ") " << false_positive_rate << "%"
-              << std::endl;
-  }
-
-  int counter = 0;
-  for (std::string item : positive_set) {
-    if (counter++ % 2 == 0) {
-      continue;
-    }
-
-    dcf->Delete(item);
-  }
-
-  std::cout << "Size of each CF before compact: ";
-  for (size_t size : dcf->SizeOfEachCF()) {
-    std::cout << size << " ";
-  }
-  std::cout << std::endl;
-
-  start_time = NowNanos();
-  dcf->Compact();
-  uint64_t compact_time = NowNanos() - start_time;
-
-  std::cout << "Size of each CF after compact: ";
-  for (size_t size : dcf->SizeOfEachCF()) {
-    std::cout << size << " ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "Time used for compact: " << compact_time << "ns" << std::endl;
-}
-
 void test1(size_t N) {
   std::cerr << "Running: TEST1 - (kmers from e.coli genome) - subset size: "
             << N << std::endl;
@@ -210,7 +123,6 @@ void test1(size_t N) {
   }
 
   testCuckooFilter(positive_set, negative_set);
-  testDynamicCuckooFilter(positive_set, negative_set);
 
   ecoli1.close();
 
@@ -272,7 +184,6 @@ void test2(size_t N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
-  testDynamicCuckooFilter(positive_set, negative_set);
 
   std::cout << std::endl;
 }
@@ -317,7 +228,6 @@ void test3(size_t N) {
   ecoli1.close();
 
   testCuckooFilter(positive_set, negative_set);
-  testDynamicCuckooFilter(positive_set, negative_set);
 
   std::cout << std::endl;
 }

@@ -1,0 +1,105 @@
+TEST1 - (kmers from e.coli genome) - subset size: 64
+CuckooFilter
+Added items: 61 / 64 (95.3125%)
+Total time to add 61 items: 331100ns (avg. 5427ns/item)
+Total time to find 61 items: 122000ns (avg. 2000ns/item)
+Total bytes used: 256 bytes
+DynamicCuckooFilter
+Added items: 64 / 64 (100%)
+Total time to add 64 items: 156300ns (avg. 2442ns/item)
+Total time to find 64 items: 173800ns (avg. 2715ns/item)
+Total bytes used: 512 bytes
+Size of each CF before compact: 10 9 10 3 
+Size of each CF after compact: 10 3 19 
+Time used for compact: 23800ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 128
+CuckooFilter
+Added items: 128 / 128 (100%)
+Total time to add 128 items: 321900ns (avg. 2514ns/item)
+Total time to find 128 items: 218900ns (avg. 1710ns/item)
+Total bytes used: 512 bytes
+DynamicCuckooFilter
+Added items: 128 / 128 (100%)
+Total time to add 128 items: 312500ns (avg. 2441ns/item)
+Total time to find 128 items: 600600ns (avg. 4692ns/item)
+Total bytes used: 1024 bytes
+Size of each CF before compact: 19 19 19 7 
+Size of each CF after compact: 17 21 26 
+Time used for compact: 66000ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 512
+CuckooFilter
+Added items: 500 / 512 (97.6562%)
+Total time to add 500 items: 1609500ns (avg. 3219ns/item)
+Total time to find 500 items: 657300ns (avg. 1314ns/item)
+Total bytes used: 2048 bytes
+DynamicCuckooFilter
+Added items: 512 / 512 (100%)
+Total time to add 512 items: 719900ns (avg. 1406ns/item)
+Total time to find 512 items: 1456200ns (avg. 2844ns/item)
+Total bytes used: 4096 bytes
+Size of each CF before compact: 77 76 77 26 
+Size of each CF after compact: 80 73 86 17 
+Time used for compact: 126200ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 1024
+CuckooFilter
+Added items: 993 / 1024 (96.9727%)
+Total time to add 993 items: 2364200ns (avg. 2380ns/item)
+Total time to find 993 items: 1252800ns (avg. 1261ns/item)
+Total bytes used: 4096 bytes
+DynamicCuckooFilter
+Added items: 1024 / 1024 (100%)
+Total time to add 1024 items: 1407600ns (avg. 1374ns/item)
+Total time to find 1024 items: 2765500ns (avg. 2700ns/item)
+Total bytes used: 8192 bytes
+Size of each CF before compact: 154 153 154 51 
+Size of each CF after compact: 157 150 162 43 
+Time used for compact: 266000ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 16384
+CuckooFilter
+Added items: 15898 / 16384 (97.0337%)
+Total time to add 15898 items: 30796600ns (avg. 1937ns/item)
+Total time to find 15898 items: 19653400ns (avg. 1236ns/item)
+Total bytes used: 65536 bytes
+DynamicCuckooFilter
+Added items: 16384 / 16384 (100%)
+Total time to add 16384 items: 25891900ns (avg. 1580ns/item)
+Total time to find 16384 items: 44563700ns (avg. 2719ns/item)
+Total bytes used: 131072 bytes
+Size of each CF before compact: 2458 2457 2458 819 
+Size of each CF after compact: 2459 2455 2468 810 
+Time used for compact: 4199500ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 131072
+CuckooFilter
+Added items: 126199 / 131072 (96.2822%)
+Total time to add 126199 items: 197852300ns (avg. 1567ns/item)
+Total time to find 126199 items: 154800700ns (avg. 1226ns/item)
+Total bytes used: 524288 bytes
+DynamicCuckooFilter
+Added items: 131072 / 131072 (100%)
+Total time to add 131072 items: 191627100ns (avg. 1461ns/item)
+Total time to find 131072 items: 374675100ns (avg. 2858ns/item)
+Total bytes used: 1048576 bytes
+Size of each CF before compact: 19661 19660 19661 6554 
+Size of each CF after compact: 19662 19656 19670 6548 
+Time used for compact: 29573300ns
+
+TEST1 - (kmers from e.coli genome) - subset size: 1048576
+CuckooFilter
+Added items: 1010524 / 1048576 (96.3711%)
+Total time to add 1010524 items: 1826139700ns (avg. 1807ns/item)
+Total time to find 1010524 items: 1421837400ns (avg. 1407ns/item)
+Total bytes used: 4194304 bytes
+DynamicCuckooFilter
+Added items: 1048576 / 1048576 (100%)
+Total time to add 1048576 items: 1615168200ns (avg. 1540ns/item)
+Total time to find 1048576 items: 2989838100ns (avg. 2851ns/item)
+Total bytes used: 8388608 bytes
+Size of each CF before compact: 157270 157285 157297 52436 
+Size of each CF after compact: 157270 157286 157306 52426 
+Time used for compact: 239899900ns
+

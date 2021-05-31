@@ -1,0 +1,121 @@
+TEST1 - (kmers from e.coli genome) - subset size: 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 73500ns (avg. 1470ns/item)
+Total time to find 50 items: 48300ns (avg. 966ns/item)
+Total bytes used: 256 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 100
+CuckooFilter
+Added items: 100 / 100 (100%)
+Total time to add 100 items: 99800ns (avg. 998ns/item)
+Total time to find 100 items: 94500ns (avg. 945ns/item)
+Total bytes used: 512 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 500
+CuckooFilter
+Added items: 500 / 500 (100%)
+Total time to add 500 items: 896900ns (avg. 1793ns/item)
+Total time to find 500 items: 641600ns (avg. 1283ns/item)
+Total bytes used: 2048 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 1000
+CuckooFilter
+Added items: 1000 / 1000 (100%)
+Total time to add 1000 items: 1937800ns (avg. 1937ns/item)
+Total time to find 1000 items: 990700ns (avg. 990ns/item)
+Total bytes used: 4096 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 10000
+CuckooFilter
+Added items: 10000 / 10000 (100%)
+Total time to add 10000 items: 8896000ns (avg. 889ns/item)
+Total time to find 10000 items: 9652200ns (avg. 965ns/item)
+Total bytes used: 65536 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 100000
+CuckooFilter
+Added items: 100000 / 100000 (100%)
+Total time to add 100000 items: 101379800ns (avg. 1013ns/item)
+Total time to find 100000 items: 111519700ns (avg. 1115ns/item)
+Total bytes used: 524288 bytes
+
+TEST1 - (kmers from e.coli genome) - subset size: 1000000
+CuckooFilter
+Added items: 1000000 / 1000000 (100%)
+Total time to add 1000000 items: 1412298500ns (avg. 1412ns/item)
+Total time to find 1000000 items: 1197345600ns (avg. 1197ns/item)
+Total bytes used: 4194304 bytes
+
+TEST2 - (kmers with modification from e.coli genome) - 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 70900ns (avg. 1418ns/item)
+Total time to find 50 items: 52100ns (avg. 1042ns/item)
+Total bytes used: 256 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 100
+CuckooFilter
+Added items: 100 / 100 (100%)
+Total time to add 100 items: 95700ns (avg. 957ns/item)
+Total time to find 100 items: 93500ns (avg. 935ns/item)
+Total bytes used: 512 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 500
+CuckooFilter
+Added items: 499 / 500 (99.8%)
+Total time to add 499 items: 1015500ns (avg. 2035ns/item)
+Total time to find 499 items: 471800ns (avg. 945ns/item)
+Total bytes used: 2048 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 1000
+CuckooFilter
+Added items: 996 / 1000 (99.6%)
+Total time to add 996 items: 2074800ns (avg. 2083ns/item)
+Total time to find 996 items: 1033500ns (avg. 1037ns/item)
+Total bytes used: 4096 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 10000
+CuckooFilter
+Added items: 10000 / 10000 (100%)
+Total time to add 10000 items: 10661700ns (avg. 1066ns/item)
+Total time to find 10000 items: 11191000ns (avg. 1119ns/item)
+Total bytes used: 65536 bytes
+False positive rate: 0%
+
+TEST2 - (kmers with modification from e.coli genome) - 100000
+CuckooFilter
+Added items: 100000 / 100000 (100%)
+Total time to add 100000 items: 103356000ns (avg. 1033ns/item)
+Total time to find 100000 items: 114704600ns (avg. 1147ns/item)
+Total bytes used: 524288 bytes
+False positive rate: 0.002%
+
+TEST3 - (random kmers) - 10
+CuckooFilter
+Added items: 10 / 10 (100%)
+Total time to add 10 items: 8100ns (avg. 810ns/item)
+Total time to find 10 items: 5900ns (avg. 590ns/item)
+Total bytes used: 64 bytes
+False positive rate: 0%
+
+TEST3 - (random kmers) - 20
+CuckooFilter
+Added items: 20 / 20 (100%)
+Total time to add 20 items: 11500ns (avg. 575ns/item)
+Total time to find 20 items: 10300ns (avg. 515ns/item)
+Total bytes used: 128 bytes
+False positive rate: 0%
+
+TEST3 - (random kmers) - 50
+CuckooFilter
+Added items: 50 / 50 (100%)
+Total time to add 50 items: 27200ns (avg. 544ns/item)
+Total time to find 50 items: 27400ns (avg. 548ns/item)
+Total bytes used: 256 bytes
+False positive rate: 0%
+
